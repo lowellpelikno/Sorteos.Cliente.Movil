@@ -1,0 +1,1096 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Sorteos.Cliente.Movil.ViewModels"
+             xmlns:models="clr-namespace:Sorteos.Cliente.Movil.Models"
+             x:Class="Sorteos.Cliente.Movil.Views.SorteosSemanaPage"
+             x:Name="thisPage"
+             x:DataType="vm:SorteosSemanaViewModel"
+             Title="{Binding Title}">
+
+    <Grid RowDefinitions="Auto, *">
+
+        <!-- Carrusel Horizontal de los 7 Dias de la Semana -->
+        <Border Grid.Row="0"
+                Margin="12,8,12,8"
+                Padding="6,8"
+                BackgroundColor="#F8F9FA"
+                Stroke="#E0E0E0"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 12">
+            <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="6" VerticalOptions="Center">
+                <!-- Boton Tap Navegacion Izquierda -->
+                <Border Grid.Column="0"
+                        WidthRequest="28"
+                        HeightRequest="60"
+                        StrokeShape="RoundRectangle 8"
+                        Stroke="#D0D0D0"
+                        StrokeThickness="1"
+                        BackgroundColor="White"
+                        VerticalOptions="Center">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavegarDiaAnteriorCommand}" />
+                    </Border.GestureRecognizers>
+                    <Label Text="&#x2039;"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource Primary}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+
+                <CollectionView Grid.Column="1"
+                                x:Name="diasCollectionView"
+                                ItemsSource="{Binding DiasSemana}"
+                                HeightRequest="92"
+                                SelectionMode="None"
+                                HorizontalScrollBarVisibility="Never">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
+                    </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:DiaSemanaItem">
+                        <Border WidthRequest="76"
+                                Padding="4,6"
+                                StrokeThickness="1"
+                                Stroke="#D0D0D0"
+                                BackgroundColor="White"
+                                StrokeShape="RoundRectangle 10">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={x:Reference thisPage}, Path=BindingContext.SeleccionarDiaCommand}"
+                                                      CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding EsSeleccionado}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+                                    <Setter Property="Stroke" Value="{StaticResource Primary}" />
+                                    <Setter Property="StrokeThickness" Value="2" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding EsTarjetaInformativa}" Value="True">
+                                    <Setter Property="Stroke" Value="#FFB74D" />
+                                </DataTrigger>
+                            </Border.Triggers>
+
+                            <Grid RowDefinitions="Auto, Auto, Auto" RowSpacing="2">
+                                <!-- Nombre de Dia (ej. LUN, MAR) -->
+                                <Label Grid.Row="0"
+                                       Text="{Binding NombreDia}"
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center"
+                                       TextColor="#666666" />
+
+                                <!-- Numero de Dia (ej. 18, 19 o Info) -->
+                                <Label Grid.Row="1"
+                                       Text="{Binding NumeroDia}"
+                                       FontSize="20"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center"
+                                       TextColor="{StaticResource PrimaryDarkText}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding EsHoy}" Value="True">
+                                            <Setter Property="TextColor" Value="{StaticResource Primary}" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding EsTarjetaInformativa}" Value="True">
+                                            <Setter Property="FontSize" Value="14" />
+                                            <Setter Property="TextColor" Value="#E65100" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+
+                                <!-- Indicador de Estado: Sorteo / Hoy / Info / Libre -->
+                                <HorizontalStackLayout Grid.Row="2"
+                                                       HorizontalOptions="Center"
+                                                       Spacing="4">
+                                    <!-- Badge Info / Reglas -->
+                                    <Border BackgroundColor="#E65100"
+                                            Padding="4,1"
+                                            StrokeShape="RoundRectangle 4"
+                                            StrokeThickness="0"
+                                            IsVisible="{Binding EsTarjetaInformativa}">
+                                        <Label Text="Reglas"
+                                               FontSize="9"
+                                               FontAttributes="Bold"
+                                               TextColor="White" />
+                                    </Border>
+
+                                    <!-- Badge Sorteo -->
+                                    <Border BackgroundColor="#4CAF50"
+                                            Padding="4,1"
+                                            StrokeShape="RoundRectangle 4"
+                                            StrokeThickness="0"
+                                            IsVisible="{Binding TieneSorteo}">
+                                        <Label Text="Sorteo"
+                                               FontSize="9"
+                                               FontAttributes="Bold"
+                                               TextColor="White" />
+                                    </Border>
+
+                                    <!-- Badge Hoy (si no tiene sorteo) -->
+                                    <Border BackgroundColor="{StaticResource Primary}"
+                                            Padding="4,1"
+                                            StrokeShape="RoundRectangle 4"
+                                            StrokeThickness="0">
+                                        <Border.Triggers>
+                                            <MultiTrigger TargetType="Border">
+                                                <MultiTrigger.Conditions>
+                                                    <BindingCondition Binding="{Binding EsHoy}" Value="True" />
+                                                    <BindingCondition Binding="{Binding TieneSorteo}" Value="False" />
+                                                </MultiTrigger.Conditions>
+                                                <Setter Property="IsVisible" Value="True" />
+                                            </MultiTrigger>
+                                            <MultiTrigger TargetType="Border">
+                                                <MultiTrigger.Conditions>
+                                                    <BindingCondition Binding="{Binding EsHoy}" Value="False" />
+                                                </MultiTrigger.Conditions>
+                                                <Setter Property="IsVisible" Value="False" />
+                                            </MultiTrigger>
+                                            <MultiTrigger TargetType="Border">
+                                                <MultiTrigger.Conditions>
+                                                    <BindingCondition Binding="{Binding TieneSorteo}" Value="True" />
+                                                </MultiTrigger.Conditions>
+                                                <Setter Property="IsVisible" Value="False" />
+                                            </MultiTrigger>
+                                        </Border.Triggers>
+                                        <Label Text="Hoy"
+                                               FontSize="9"
+                                               FontAttributes="Bold"
+                                               TextColor="White" />
+                                    </Border>
+                                </HorizontalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Boton Tap Navegacion Derecha -->
+                <Border Grid.Column="2"
+                        WidthRequest="28"
+                        HeightRequest="60"
+                        StrokeShape="RoundRectangle 8"
+                        Stroke="#D0D0D0"
+                        StrokeThickness="1"
+                        BackgroundColor="White"
+                        VerticalOptions="Center">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavegarDiaSiguienteCommand}" />
+                    </Border.GestureRecognizers>
+                    <Label Text="&#x203A;"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource Primary}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Indicador de Carga -->
+        <ActivityIndicator Grid.Row="1"
+                           IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+
+        <!-- Panel de Detalle del Dia Seleccionado -->
+        <ScrollView Grid.Row="1"
+                    IsVisible="{Binding IsNotBusy}"
+                    Padding="12,4,12,16">
+            <VerticalStackLayout Spacing="12">
+
+                <!-- Encabezado de Fecha -->
+                <!--<Label Text="{Binding DiaSeleccionado.FechaFormateada}"
+                       FontSize="16"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource PrimaryDarkText}"
+                       Margin="4,0" />-->
+
+                <!-- CASO 1: EL DIA TIENE SORTEO PROGRAMADO -->
+                <VerticalStackLayout Spacing="12"
+                                     IsVisible="{Binding TieneSorteoDiaSeleccionado}">
+
+                    <!-- Banner informativo de Sorteo Pendiente de Periodo Anterior -->
+                    <Border BackgroundColor="#FFF3E0"
+                            Stroke="#FFB74D"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="12,10"
+                            IsVisible="{Binding MostrarBannerPendiente}">
+                        <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, Auto" ColumnSpacing="10" RowSpacing="4">
+                            <Border Grid.Row="0" Grid.Column="0"
+                                    BackgroundColor="#E65100"
+                                    WidthRequest="22"
+                                    HeightRequest="22"
+                                    StrokeShape="RoundRectangle 11"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Start"
+                                    Margin="0,2,0,0">
+                                <Label Text="!"
+                                       TextColor="White"
+                                       FontAttributes="Bold"
+                                       FontSize="13"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            <Label Grid.Row="0" Grid.Column="1"
+                                   Text="{Binding BannerPendienteTexto}"
+                                   FontSize="12"
+                                   TextColor="#BF360C"
+                                   LineBreakMode="WordWrap"
+                                   VerticalOptions="Center" />
+
+                            <HorizontalStackLayout Grid.Row="1" Grid.Column="1" HorizontalOptions="End">
+                                <Button Text="No volver a mostrar"
+                                        Command="{Binding OcultarBannerPendienteCommand}"
+                                        FontSize="11"
+                                        FontAttributes="Bold"
+                                        TextColor="#E65100"
+                                        BackgroundColor="Transparent"
+                                        Padding="6,2"
+                                        HeightRequest="28" />
+                            </HorizontalStackLayout>
+                        </Grid>
+                    </Border>
+
+                    <!-- Tarjeta Principal del Sorteo -->
+                    <Border Stroke="#D0D0D0"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 12"
+                            BackgroundColor="White"
+                            Padding="16">
+                        <VerticalStackLayout Spacing="12">
+                            <!-- Titulo y Folio -->
+                            <Grid ColumnDefinitions="*, Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="{Binding SorteoActual.Descripcion}"
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           TextColor="{StaticResource PrimaryDarkText}" />
+                                    <Label Text="{Binding SorteoActual.SeJuegaCon, StringFormat='Se juega con: {0}'}"
+                                           FontSize="13"
+                                           TextColor="#666666" />
+                                </VerticalStackLayout>
+                                <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Start">
+                                    <Border BackgroundColor="#E8F5E9"
+                                            Padding="8,4"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 6"
+                                            IsVisible="{Binding EsSorteoFinalizado}">
+                                        <Label Text="Finalizado"
+                                               FontSize="12"
+                                               FontAttributes="Bold"
+                                               TextColor="#2E7D32" />
+                                    </Border>
+                                    <Border BackgroundColor="{StaticResource Secondary}"
+                                            Padding="8,4"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 6">
+                                        <Label Text="{Binding SorteoActual.NumeroDeSorteo, StringFormat='Folio: {0}'}"
+                                               FontSize="12"
+                                               FontAttributes="Bold"
+                                               TextColor="{StaticResource Primary}" />
+                                    </Border>
+                                </HorizontalStackLayout>
+                            </Grid>
+
+                            <!-- Imagen del Sorteo (si cuenta con ella) -->
+                            <Border Stroke="#E0E0E0"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 8"
+                                    HeightRequest="150"
+                                    BackgroundColor="#F5F5F5"
+                                    IsVisible="{Binding SorteoActual.TieneImagen}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding VerImagenCompletaCommand}" />
+                                </Border.GestureRecognizers>
+                                <Grid>
+                                    <Image Source="{Binding SorteoActual.RutaImagen}"
+                                           Aspect="AspectFill"
+                                           HorizontalOptions="Fill"
+                                           VerticalOptions="Fill" />
+                                    <!-- Badge indicador de ampliacion -->
+                                    <Border HorizontalOptions="End"
+                                            VerticalOptions="End"
+                                            Margin="8"
+                                            Padding="8,4"
+                                            BackgroundColor="#A6000000"
+                                            StrokeShape="RoundRectangle 6"
+                                            StrokeThickness="0">
+                                        <Label Text="Toca para ver completa"
+                                               FontSize="11"
+                                               TextColor="White"
+                                               FontAttributes="Bold" />
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <BoxView HeightRequest="1" Color="#E0E0E0" />
+
+                            <!-- Indicadores Clave: Oportunidades, Costo, Numeros -->
+                            <Grid ColumnDefinitions="*, *, *" ColumnSpacing="8">
+                                <!-- Oportunidades -->
+                                <Border Grid.Column="0"
+                                        Stroke="#E0E0E0"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 8"
+                                        BackgroundColor="#FAFAFA"
+                                        Padding="8,10">
+                                    <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                                        <Label Text="Oportunidades"
+                                               FontSize="11"
+                                               TextColor="#777777"
+                                               HorizontalOptions="Center" />
+                                        <Label Text="{Binding SorteoActual.Oportunidades}"
+                                               FontSize="18"
+                                               FontAttributes="Bold"
+                                               TextColor="{StaticResource PrimaryDarkText}"
+                                               HorizontalOptions="Center" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- Costo por Boleto -->
+                                <Border Grid.Column="1"
+                                        Stroke="#E0E0E0"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 8"
+                                        BackgroundColor="#FAFAFA"
+                                        Padding="8,10">
+                                    <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                                        <Label Text="Costo Boleto"
+                                               FontSize="11"
+                                               TextColor="#777777"
+                                               HorizontalOptions="Center" />
+                                        <Label Text="{Binding SorteoActual.CostoFormateado}"
+                                               FontSize="16"
+                                               FontAttributes="Bold"
+                                               TextColor="#2E7D32"
+                                               HorizontalOptions="Center" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- Cantidad de Numeros -->
+                                <Border Grid.Column="2"
+                                        Stroke="#E0E0E0"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 8"
+                                        BackgroundColor="#FAFAFA"
+                                        Padding="8,10">
+                                    <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                                        <Label Text="Emisión"
+                                               FontSize="11"
+                                               TextColor="#777777"
+                                               HorizontalOptions="Center" />
+                                        <Label Text="{Binding SorteoActual.CantidadEmisiones}"
+                                               FontSize="18"
+                                               FontAttributes="Bold"
+                                               TextColor="{StaticResource PrimaryDarkText}"
+                                               HorizontalOptions="Center" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </Grid>
+
+                            <!-- Barra de Progreso y Métricas del Sorteo -->
+                            <VerticalStackLayout Spacing="6">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" VerticalOptions="Center">
+                                    <ProgressBar Grid.Column="0"
+                                                 Progress="{Binding PorcentajeOcupacion}"
+                                                 ProgressColor="#3F51B5"
+                                                 HeightRequest="8"
+                                                 VerticalOptions="Center" />
+                                    <Label Grid.Column="1"
+                                           Text="{Binding PorcentajeOcupacionTexto}"
+                                           FontSize="12"
+                                           FontAttributes="Bold"
+                                           TextColor="#3F51B5"
+                                           VerticalOptions="Center" />
+                                </Grid>
+
+                                <!-- Resumen de Contadores de Boletos -->
+                                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="6">
+                                    <Border Grid.Column="0" Padding="4,6" StrokeShape="RoundRectangle 6" Stroke="#E0E0E0" BackgroundColor="#FAFAFA">
+                                        <VerticalStackLayout Spacing="1" HorizontalOptions="Center">
+                                            <Label Text="Total" FontSize="10" TextColor="#757575" HorizontalTextAlignment="Center" />
+                                            <Label Text="{Binding TotalNumeros}" FontSize="13" FontAttributes="Bold" TextColor="#212121" HorizontalTextAlignment="Center" />
+                                        </VerticalStackLayout>
+                                    </Border>
+                                    <Border Grid.Column="1" Padding="4,6" StrokeShape="RoundRectangle 6" Stroke="#C5CAE9" BackgroundColor="#E8EAF6">
+                                        <VerticalStackLayout Spacing="1" HorizontalOptions="Center">
+                                            <Label Text="Libres" FontSize="10" TextColor="#5C6BC0" HorizontalTextAlignment="Center" />
+                                            <Label Text="{Binding TotalDisponibles}" FontSize="13" FontAttributes="Bold" TextColor="#3F51B5" HorizontalTextAlignment="Center" />
+                                        </VerticalStackLayout>
+                                    </Border>
+                                    <Border Grid.Column="2" Padding="4,6" StrokeShape="RoundRectangle 6" Stroke="#9FA8DA" BackgroundColor="#E8EAF6">
+                                        <VerticalStackLayout Spacing="1" HorizontalOptions="Center">
+                                            <Label Text="Apartados" FontSize="10" TextColor="#3F51B5" HorizontalTextAlignment="Center" />
+                                            <Label Text="{Binding TotalApartados}" FontSize="13" FontAttributes="Bold" TextColor="#283593" HorizontalTextAlignment="Center" />
+                                        </VerticalStackLayout>
+                                    </Border>
+                                    <Border Grid.Column="3" Padding="4,6" StrokeShape="RoundRectangle 6" Stroke="#7986CB" BackgroundColor="#C5CAE9">
+                                        <VerticalStackLayout Spacing="1" HorizontalOptions="Center">
+                                            <Label Text="Pagados" FontSize="10" TextColor="#283593" HorizontalTextAlignment="Center" />
+                                            <Label Text="{Binding TotalPagados}" FontSize="13" FontAttributes="Bold" TextColor="#1A237E" HorizontalTextAlignment="Center" />
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </Grid>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding PremiosDelSorteo}"
+                                                 Spacing="6">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="models:PremioPorSorteo">
+                                        <Border Stroke="{StaticResource IndigoBorder}"
+                                                StrokeThickness="1"
+                                                StrokeShape="RoundRectangle 8"
+                                                BackgroundColor="#FDFDFD"
+                                                Padding="12,8">
+                                            <VerticalStackLayout Spacing="6">
+                                                <Grid ColumnDefinitions="Auto, *">
+                                                    <Border Grid.Column="0"
+                                                            BackgroundColor="{StaticResource Secondary}"
+                                                            Padding="8,4"
+                                                            StrokeThickness="0"
+                                                            StrokeShape="RoundRectangle 6"
+                                                            Margin="0,0,10,0">
+                                                        <Label Text="{Binding LugarTexto}"
+                                                               FontSize="12"
+                                                               FontAttributes="Bold"
+                                                               TextColor="{StaticResource Primary}" />
+                                                    </Border>
+                                                    <Label Grid.Column="1"
+                                                           Text="{Binding ValorFormateado}"
+                                                           FontSize="14"
+                                                           FontAttributes="Bold"
+                                                           TextColor="{StaticResource PrimaryDarkText}"
+                                                           VerticalOptions="Center" />
+                                                </Grid>
+
+                                                <!-- Leyenda Grande y Clara para Ganador del Premio -->
+                                                <Border IsVisible="{Binding TieneGanador}"
+                                                        BackgroundColor="{StaticResource PrimaryDarkText}"
+                                                        StrokeShape="RoundRectangle 6"
+                                                        Padding="10,6">
+                                                    <Grid ColumnDefinitions="Auto, *">
+                                                        <Border Grid.Column="0"
+                                                                BackgroundColor="{StaticResource Secondary}"
+                                                                Padding="6,2"
+                                                                StrokeThickness="0"
+                                                                StrokeShape="RoundRectangle 4"
+                                                                Margin="0,0,8,0">
+                                                            <Label Text="GANADOR"
+                                                                   FontSize="11"
+                                                                   FontAttributes="Bold"
+                                                                   TextColor="{StaticResource PrimaryDarkText}" />
+                                                        </Border>
+                                                        <Label Grid.Column="1"
+                                                               Text="{Binding LeyendaGanador}"
+                                                               FontSize="13"
+                                                               FontAttributes="Bold"
+                                                               TextColor="White"
+                                                               LineBreakMode="TailTruncation"
+                                                               VerticalOptions="Center" />
+                                                    </Grid>
+                                                </Border>
+                                            </VerticalStackLayout>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                            <Button Text="Ver Cuadrícula de Reservas"
+                                    Command="{Binding VerReservasCommand}"
+                                    BackgroundColor="{StaticResource Primary}"
+                                    TextColor="White"
+                                    FontAttributes="Bold"
+                                    CornerRadius="8"
+                                    HeightRequest="48"
+                                    Margin="0,4" />
+
+                            <!-- Boton Compartir Ganadores (visible solo si el sorteo esta cerrado/finalizado) -->
+                            <Button Text="Compartir Ganadores"
+                                    Command="{Binding AbrirModalGanadoresFlyerCommand}"
+                                    IsVisible="{Binding EsSorteoFinalizado}"
+                                    BackgroundColor="#2E7D32"
+                                    TextColor="White"
+                                    FontAttributes="Bold"
+                                    CornerRadius="8"
+                                    HeightRequest="44"
+                                    FontSize="13"
+                                    Margin="0,2,0,0" />
+
+                            <!-- Acciones de Cierre y Cancelacion (visibles solo si el sorteo no esta finalizado) -->
+                            <Grid ColumnDefinitions="*, *"
+                                  ColumnSpacing="10"
+                                  Margin="0,2,0,0">
+                                <Grid.Triggers>
+                                    <DataTrigger TargetType="Grid" Binding="{Binding EsSorteoFinalizado}" Value="True">
+                                        <Setter Property="IsVisible" Value="False" />
+                                    </DataTrigger>
+                                </Grid.Triggers>
+
+                                <!-- Boton Cerrar Sorteo -->
+                                <Button Grid.Column="0"
+                                        Text="Cerrar Sorteo"
+                                        Command="{Binding AbrirModalCerrarSorteoCommand}"
+                                        BackgroundColor="#3949AB"
+                                        TextColor="White"
+                                        FontAttributes="Bold"
+                                        CornerRadius="8"
+                                        HeightRequest="42"
+                                        FontSize="13" />
+
+                                <!-- Boton Cancelar Sorteo -->
+                                <Button Grid.Column="1"
+                                        Text="Cancelar Sorteo"
+                                        Command="{Binding CancelarSorteoCommand}"
+                                        BackgroundColor="#FFEBEE"
+                                        TextColor="#C62828"
+                                        BorderColor="#EF9A9A"
+                                        BorderWidth="1"
+                                        FontAttributes="Bold"
+                                        CornerRadius="8"
+                                        HeightRequest="42"
+                                        FontSize="13" />
+                            </Grid>
+                        </VerticalStackLayout>
+                        <!-- Boton Ver Cuadricula de Reservas -->
+                        
+                    </Border>
+                    
+                </VerticalStackLayout>
+
+                <!-- CASO 2: EL DIA NO TIENE SORTEO Y ES FECHA VIGENTE (HOY O FUTURO) -->
+                <Border Stroke="#D0D0D0"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12"
+                        BackgroundColor="White"
+                        Padding="24"
+                        Margin="0,12"
+                        IsVisible="{Binding PuedeCrearSorteoDiaSeleccionado}">
+                    <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
+                        <Label Text="Día Disponible"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource PrimaryDarkText}"
+                               HorizontalOptions="Center" />
+
+                        <Label Text="No hay sorteo programado para este día. Puedes crear uno nuevo respetando el límite máximo de un sorteo por día."
+                               FontSize="14"
+                               TextColor="#666666"
+                               HorizontalTextAlignment="Center" />
+
+                        <Button Text="+ Crear Sorteo"
+                                Command="{Binding CrearSorteoCommand}"
+                                BackgroundColor="{StaticResource Primary}"
+                                TextColor="White"
+                                FontAttributes="Bold"
+                                CornerRadius="8"
+                                HeightRequest="48"
+                                WidthRequest="220"
+                                HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- CASO 3: EL DIA NO TIENE SORTEO Y ES FECHA PASADA -->
+                <Border Stroke="#E0E0E0"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12"
+                        BackgroundColor="#F5F5F5"
+                        Padding="24"
+                        Margin="0,12"
+                        IsVisible="{Binding EsDiaPasadoDiaSeleccionado}">
+                    <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
+                        <Label Text="Fecha Vencida"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="#777777"
+                               HorizontalOptions="Center" />
+
+                        <Label Text="La fecha seleccionada ya transcurrió. Por regla de negocio no es posible crear sorteos en fechas pasadas."
+                               FontSize="14"
+                               TextColor="#888888"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- CASO 4: TARJETA INFORMATIVA SELECCIONADA (REGLAS Y ATENCION) -->
+                <Border Stroke="#FFB74D"
+                        StrokeThickness="1.5"
+                        StrokeShape="RoundRectangle 12"
+                        BackgroundColor="White"
+                        Padding="20"
+                        Margin="0,4"
+                        IsVisible="{Binding EsTarjetaInformativaSeleccionada}">
+                    <VerticalStackLayout Spacing="16">
+                        <!-- Cabecera de Atencion -->
+                        <Grid ColumnDefinitions="Auto, *" ColumnSpacing="12">
+                            <Border Grid.Column="0"
+                                    BackgroundColor="#E65100"
+                                    WidthRequest="36"
+                                    HeightRequest="36"
+                                    StrokeShape="RoundRectangle 18"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Center">
+                                <Label Text="!"
+                                       TextColor="White"
+                                       FontAttributes="Bold"
+                                       FontSize="20"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="{Binding TituloInformativoReglas}"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="#E65100" />
+                                <Label Text="Información importante sobre el ciclo de sorteos"
+                                       FontSize="12"
+                                       TextColor="#777777" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <BoxView HeightRequest="1" Color="#FFE0B2" />
+
+                        <!-- Explicacion detallada -->
+                        <Label Text="{Binding DescripcionInformativaReglas}"
+                               FontSize="14"
+                               TextColor="{StaticResource PrimaryDarkText}"
+                               LineHeight="1.3" />
+
+                        <!-- Puntos Clave de Operatividad -->
+                        <Border BackgroundColor="#FFF8E1"
+                                Stroke="#FFE082"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="12">
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="Puntos Clave:"
+                                       FontSize="13"
+                                       FontAttributes="Bold"
+                                       TextColor="#F57F17" />
+                                <Label Text="• Tus sorteos pendientes NO se eliminan automáticamente."
+                                       FontSize="12"
+                                       TextColor="#5D4037" />
+                                <Label Text="• Puedes ingresar a la cuadrícula de reservas para seguir vendiendo o cobrando."
+                                       FontSize="12"
+                                       TextColor="#5D4037" />
+                                <Label Text="• Al culminar (cerrar o cancelar) todos los pendientes, la semana actual se habilitará automáticamente."
+                                       FontSize="12"
+                                       TextColor="#5D4037" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Modal Overlay: Cierre de Sorteo con Asignacion de Premios -->
+        <Grid Grid.Row="0"
+              Grid.RowSpan="2"
+              ZIndex="999"
+              IsVisible="{Binding MostrarModalCerrarSorteo}"
+              BackgroundColor="#D9000000"
+              Padding="14,20">
+            <Border BackgroundColor="White"
+                    StrokeShape="RoundRectangle 16"
+                    StrokeThickness="0"
+                    VerticalOptions="Center"
+                    MaximumWidthRequest="500"
+                    Padding="16,14">
+                <VerticalStackLayout Spacing="10">
+                    <!-- Encabezado Modal -->
+                    <Grid ColumnDefinitions="*, Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="{Binding TituloModalCierre}"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource PrimaryDarkText}" />
+                            <Label Text="Asigna el número ganador para cada premio configurado:"
+                                   FontSize="12"
+                                   TextColor="#616161" />
+                        </VerticalStackLayout>
+                        <Button Grid.Column="1"
+                                Text="Cerrar"
+                                FontSize="11"
+                                FontAttributes="Bold"
+                                HeightRequest="32"
+                                CornerRadius="8"
+                                Padding="10,0"
+                                BackgroundColor="{StaticResource Secondary}"
+                                TextColor="{StaticResource PrimaryDarkText}"
+                                Command="{Binding CerrarModalCierreCommand}" />
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="#EEEEEE" />
+
+                    <!-- Lista de Premios para Asignar -->
+                    <ScrollView MaximumHeightRequest="360">
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding PremiosParaCierre}"
+                                             Spacing="8">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:PremioAsignacionDto">
+                                    <Border Stroke="#E0E0E0"
+                                            StrokeThickness="1"
+                                            StrokeShape="RoundRectangle 10"
+                                            BackgroundColor="#FAFAFA"
+                                            Padding="10,8">
+                                        <VerticalStackLayout Spacing="6">
+                                            <!-- Fila Titulo Premio -->
+                                            <Grid ColumnDefinitions="Auto, *">
+                                                <Border Grid.Column="0"
+                                                        BackgroundColor="{StaticResource Secondary}"
+                                                        Padding="6,2"
+                                                        StrokeThickness="0"
+                                                        StrokeShape="RoundRectangle 4"
+                                                        Margin="0,0,8,0">
+                                                    <Label Text="{Binding LugarTexto}"
+                                                           FontSize="11"
+                                                           FontAttributes="Bold"
+                                                           TextColor="{StaticResource Primary}" />
+                                                </Border>
+                                                <Label Grid.Column="1"
+                                                       Text="{Binding ValorFormateado}"
+                                                       FontSize="13"
+                                                       FontAttributes="Bold"
+                                                       TextColor="{StaticResource PrimaryDarkText}"
+                                                       VerticalOptions="Center" />
+                                            </Grid>
+
+                                            <!-- Estado 1: Pendiente de Asignar -->
+                                            <Grid ColumnDefinitions="*, Auto"
+                                                  ColumnSpacing="8">
+                                                <Grid.Triggers>
+                                                    <DataTrigger TargetType="Grid" Binding="{Binding EstaAsignado}" Value="True">
+                                                        <Setter Property="IsVisible" Value="False" />
+                                                    </DataTrigger>
+                                                </Grid.Triggers>
+
+                                                <Border Grid.Column="0"
+                                                        HeightRequest="36"
+                                                        StrokeShape="RoundRectangle 6"
+                                                        Stroke="#C5CAE9"
+                                                        BackgroundColor="White"
+                                                        Padding="8,0">
+                                                    <Entry Text="{Binding NumeroIngresado}"
+                                                           Placeholder="Número premiado"
+                                                           Keyboard="Numeric"
+                                                           FontSize="13"
+                                                           VerticalOptions="Center"
+                                                           ClearButtonVisibility="Never" />
+                                                </Border>
+
+                                                <Button Grid.Column="1"
+                                                        Text="Asignar"
+                                                        FontSize="12"
+                                                        FontAttributes="Bold"
+                                                        HeightRequest="36"
+                                                        CornerRadius="6"
+                                                        Padding="12,0"
+                                                        BackgroundColor="#3F51B5"
+                                                        TextColor="White"
+                                                        Command="{Binding Source={x:Reference thisPage}, Path=BindingContext.AsignarNumeroPremioCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                            </Grid>
+
+                                            <!-- Estado 2: Asignado (Muestra resultado y opcion Deshacer) -->
+                                            <Grid ColumnDefinitions="*, Auto"
+                                                  ColumnSpacing="8"
+                                                  IsVisible="{Binding EstaAsignado}">
+                                                <Border Grid.Column="0"
+                                                        Padding="8,6"
+                                                        StrokeShape="RoundRectangle 6"
+                                                        StrokeThickness="1"
+                                                        Stroke="#C8E6C9"
+                                                        BackgroundColor="#E8F5E9">
+                                                    <Border.Triggers>
+                                                        <DataTrigger TargetType="Border" Binding="{Binding EsDesierto}" Value="True">
+                                                            <Setter Property="Stroke" Value="#CFD8DC" />
+                                                            <Setter Property="BackgroundColor" Value="#ECEFF1" />
+                                                        </DataTrigger>
+                                                    </Border.Triggers>
+                                                    <Label Text="{Binding ResumenResultado}"
+                                                           FontSize="12"
+                                                           FontAttributes="Bold"
+                                                           TextColor="#2E7D32">
+                                                        <Label.Triggers>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding EsDesierto}" Value="True">
+                                                                <Setter Property="TextColor" Value="#455A64" />
+                                                            </DataTrigger>
+                                                        </Label.Triggers>
+                                                    </Label>
+                                                </Border>
+
+                                                <Button Grid.Column="1"
+                                                        Text="Deshacer"
+                                                        FontSize="11"
+                                                        FontAttributes="Bold"
+                                                        HeightRequest="34"
+                                                        CornerRadius="6"
+                                                        Padding="10,0"
+                                                        BackgroundColor="#FFF3E0"
+                                                        TextColor="#E65100"
+                                                        Command="{Binding Source={x:Reference thisPage}, Path=BindingContext.DeshacerAsignacionPremioCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                            </Grid>
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </ScrollView>
+
+                    <BoxView HeightRequest="1" Color="#EEEEEE" />
+
+                    <!-- Boton Confirmar y Finalizar Sorteo -->
+                    <Button Text="Finalizar Sorteo"
+                            Command="{Binding ConfirmarCierreSorteoCommand}"
+                            IsEnabled="{Binding TodosPremiosAsignados}"
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            HeightRequest="46"
+                            CornerRadius="10"
+                            BackgroundColor="{StaticResource Primary}"
+                            TextColor="White">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding TodosPremiosAsignados}" Value="False">
+                                <Setter Property="BackgroundColor" Value="#CFD8DC" />
+                                <Setter Property="TextColor" Value="#90A4AE" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- Modal Overlay: Visor de Imagen del Sorteo a Pantalla Completa -->
+        <Grid Grid.Row="0"
+              Grid.RowSpan="2"
+              ZIndex="999"
+              IsVisible="{Binding MostrarVisorImagen}"
+              BackgroundColor="#D9000000"
+              RowDefinitions="Auto, *, Auto"
+              Padding="16, 24">
+            <!-- Barra Superior del Visor -->
+            <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0, 0, 0, 12">
+                <Label Grid.Column="0"
+                       Text="{Binding TituloVisorImagen}"
+                       FontSize="16"
+                       FontAttributes="Bold"
+                       TextColor="White"
+                       VerticalOptions="Center" />
+                <Button Grid.Column="1"
+                        Text="Cerrar"
+                        FontSize="13"
+                        FontAttributes="Bold"
+                        HeightRequest="36"
+                        CornerRadius="8"
+                        Padding="14, 0"
+                        BackgroundColor="#424242"
+                        TextColor="White"
+                        Command="{Binding CerrarVisorImagenCommand}" />
+            </Grid>
+
+            <!-- Imagen del Sorteo en su totalidad -->
+            <Border Grid.Row="1"
+                    StrokeShape="RoundRectangle 12"
+                    Stroke="#37474F"
+                    BackgroundColor="#121212"
+                    Padding="4">
+                <Image Source="{Binding ImagenVisorUrl}"
+                       Aspect="AspectFit"
+                       HorizontalOptions="Fill"
+                       VerticalOptions="Fill" />
+            </Border>
+
+            <!-- Boton Inferior de Cierre -->
+            <Button Grid.Row="2"
+                    Text="Cerrar Visualizador"
+                    FontSize="14"
+                    FontAttributes="Bold"
+                    HeightRequest="44"
+                    CornerRadius="10"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White"
+                    Margin="0, 12, 0, 0"
+                    Command="{Binding CerrarVisorImagenCommand}" />
+        </Grid>
+
+        <!-- Modal Overlay: Flyer de Ganadores para Exportacion -->
+        <Grid Grid.Row="0"
+              Grid.RowSpan="2"
+              ZIndex="998"
+              IsVisible="{Binding MostrarModalGanadoresFlyer}"
+              BackgroundColor="#CC000000"
+              Padding="16,20">
+            <Border StrokeShape="RoundRectangle 16"
+                    StrokeThickness="0"
+                    BackgroundColor="White"
+                    VerticalOptions="Center"
+                    MaximumWidthRequest="400"
+                    Padding="16,14">
+                <VerticalStackLayout Spacing="10">
+                    <!-- Encabezado del Modal -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0"
+                               Text="Ganadores del Sorteo"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="#1A237E"
+                               VerticalOptions="Center" />
+                        <Button Grid.Column="1"
+                                Text="✕"
+                                FontSize="14"
+                                FontAttributes="Bold"
+                                HeightRequest="32"
+                                WidthRequest="32"
+                                CornerRadius="16"
+                                Padding="0"
+                                BackgroundColor="#ECEFF1"
+                                TextColor="#455A64"
+                                Command="{Binding CerrarModalGanadoresFlyerCommand}"
+                                VerticalOptions="Center" />
+                    </Grid>
+
+                    <!-- Tarjeta para Captura Grafica -->
+                    <ScrollView MaximumHeightRequest="480">
+                        <Border x:Name="tarjetaFlyerGanadores"
+                                StrokeThickness="0"
+                                BackgroundColor="White"
+                                Padding="0"
+                                WidthRequest="320"
+                                HorizontalOptions="Center">
+                            <VerticalStackLayout Spacing="8" WidthRequest="320">
+                                <!-- Imagen del Sorteo subida por el usuario -->
+                                <Image Source="{Binding SorteoActual.RutaImagen}"
+                                       Aspect="AspectFit"
+                                       WidthRequest="320"
+                                       HorizontalOptions="Fill" />
+
+                                <!-- Cabecera de Ganadores en Tarjeta -->
+                                <Border BackgroundColor="#1A237E"
+                                        Padding="10,6"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 6">
+                                    <Grid ColumnDefinitions="*, Auto">
+                                        <Label Grid.Column="0"
+                                               Text="RESULTADOS OFICIALES"
+                                               FontSize="12"
+                                               FontAttributes="Bold"
+                                               TextColor="White"
+                                               VerticalOptions="Center" />
+                                        <Label Grid.Column="1"
+                                               Text="{Binding SorteoActual.NumeroDeSorteo, StringFormat='Folio: {0:D2}'}"
+                                               FontSize="11"
+                                               FontAttributes="Bold"
+                                               TextColor="#C5CAE9"
+                                               VerticalOptions="Center" />
+                                    </Grid>
+                                </Border>
+
+                                <!-- Lista de Premios y Ganadores -->
+                                <VerticalStackLayout BindableLayout.ItemsSource="{Binding PremiosDelSorteo}"
+                                                     Spacing="6">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="models:PremioPorSorteo">
+                                            <Border Stroke="#E0E0E0"
+                                                    StrokeThickness="1"
+                                                    StrokeShape="RoundRectangle 8"
+                                                    BackgroundColor="#FAFAFA"
+                                                    Padding="8,6">
+                                                <VerticalStackLayout Spacing="4">
+                                                    <!-- Fila Lugar y Monto -->
+                                                    <Grid ColumnDefinitions="Auto, *">
+                                                        <Border Grid.Column="0"
+                                                                BackgroundColor="{StaticResource Secondary}"
+                                                                Padding="6,2"
+                                                                StrokeThickness="0"
+                                                                StrokeShape="RoundRectangle 4"
+                                                                Margin="0,0,8,0">
+                                                            <Label Text="{Binding LugarTexto}"
+                                                                   FontSize="11"
+                                                                   FontAttributes="Bold"
+                                                                   TextColor="{StaticResource Primary}" />
+                                                        </Border>
+                                                        <Label Grid.Column="1"
+                                                               Text="{Binding ValorFormateado}"
+                                                               FontSize="12"
+                                                               FontAttributes="Bold"
+                                                               TextColor="{StaticResource PrimaryDarkText}"
+                                                               VerticalOptions="Center" />
+                                                    </Grid>
+
+                                                    <!-- Indicador Ganador -->
+                                                    <Border BackgroundColor="{StaticResource PrimaryDarkText}"
+                                                            StrokeShape="RoundRectangle 6"
+                                                            Padding="8,4">
+                                                        <Grid ColumnDefinitions="Auto, *">
+                                                            <Border Grid.Column="0"
+                                                                    BackgroundColor="{StaticResource Secondary}"
+                                                                    Padding="4,1"
+                                                                    StrokeThickness="0"
+                                                                    StrokeShape="RoundRectangle 3"
+                                                                    Margin="0,0,6,0">
+                                                                <Label Text="GANADOR"
+                                                                       FontSize="10"
+                                                                       FontAttributes="Bold"
+                                                                       TextColor="{StaticResource PrimaryDarkText}" />
+                                                            </Border>
+                                                            <Label Grid.Column="1"
+                                                                   Text="{Binding LeyendaGanador}"
+                                                                   FontSize="11"
+                                                                   FontAttributes="Bold"
+                                                                   TextColor="White"
+                                                                   LineBreakMode="TailTruncation"
+                                                                   VerticalOptions="Center" />
+                                                        </Grid>
+                                                    </Border>
+                                                </VerticalStackLayout>
+                                            </Border>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+                    </ScrollView>
+
+                    <!-- Acciones del Modal -->
+                    <Grid ColumnDefinitions="Auto,*,*" ColumnSpacing="8">
+                        <Button Grid.Column="0"
+                                Text="Cerrar"
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                HeightRequest="40"
+                                CornerRadius="8"
+                                Padding="12,0"
+                                BackgroundColor="#EEEEEE"
+                                TextColor="#424242"
+                                Command="{Binding CerrarModalGanadoresFlyerCommand}" />
+
+                        <Button Grid.Column="1"
+                                Text="Descargar"
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                HeightRequest="40"
+                                CornerRadius="8"
+                                Padding="8,0"
+                                BackgroundColor="#1565C0"
+                                TextColor="White"
+                                Command="{Binding DescargarGanadoresFlyerCommand}" />
+
+                        <Button Grid.Column="2"
+                                Text="Compartir"
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                HeightRequest="40"
+                                CornerRadius="8"
+                                Padding="8,0"
+                                BackgroundColor="#2E7D32"
+                                TextColor="White"
+                                Command="{Binding CompartirGanadoresFlyerCommand}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>
+

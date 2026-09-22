@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Sorteos.Cliente.Movil.ViewModels"
+             x:Class="Sorteos.Cliente.Movil.MainPage"
+             x:Name="thisPage"
+             x:DataType="vm:MainViewModel"
+             BackgroundColor="{StaticResource IndigoTint}"
+             Title="Panel Principal">
+
+    <RefreshView IsRefreshing="{Binding IsRefreshing}"
+                 Command="{Binding RefrescarCommand}"
+                 RefreshColor="{StaticResource Primary}">
+
+        <ScrollView VerticalScrollBarVisibility="Never">
+            <VerticalStackLayout Padding="16,14,16,28" Spacing="16">
+
+                <!-- 1. Encabezado Ejecutivo (Hero Header) -->
+                <Grid ColumnDefinitions="*, Auto" Margin="0,4,0,2">
+                    <VerticalStackLayout Grid.Column="0" Spacing="2">
+                        <Label Text="PANEL EJECUTIVO"
+                               FontSize="10"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource IndigoAccent}"
+                               CharacterSpacing="1.2" />
+                        <Label Text="{Binding Saludo}"
+                               FontSize="22"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource MidnightBlue}" />
+                        <Label Text="{Binding FechaActualTexto}"
+                               FontSize="12"
+                               TextColor="{StaticResource Gray600}" />
+                    </VerticalStackLayout>
+
+                    <!-- Acciones del Encabezado -->
+                    <HorizontalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center">
+                        <!-- Insignia de Estado Operativo -->
+                        <Border Padding="10,6"
+                                VerticalOptions="Center"
+                                StrokeShape="RoundRectangle 16"
+                                BackgroundColor="{StaticResource Secondary}"
+                                Stroke="{StaticResource IndigoBorder}"
+                                StrokeThickness="1">
+                            <Label Text="Operativo"
+                                   FontSize="11"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource PrimaryDarkText}" />
+                        </Border>
+
+                        <!-- Botón Ajustes -->
+                        <Border Padding="10,6"
+                                VerticalOptions="Center"
+                                StrokeShape="RoundRectangle 16"
+                                BackgroundColor="White"
+                                Stroke="{StaticResource IndigoBorder}"
+                                StrokeThickness="1">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding NavegarAAjustesCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="Ajustes"
+                                   FontSize="11"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource Primary}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Border>
+                    </HorizontalStackLayout>
+                </Grid>
+
+                <!-- 2. Bento-Grid de Indicadores Clave (KPIs) -->
+                <Grid RowDefinitions="Auto, Auto"
+                      ColumnDefinitions="*, *"
+                      RowSpacing="12"
+                      ColumnSpacing="12">
+
+                    <!-- KPI 1: Caja Cobrada -->
+                    <Border Grid.Row="0"
+                            Grid.Column="0"
+                            Padding="14"
+                            BackgroundColor="White"
+                            Stroke="{StaticResource IndigoBorder}"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 14">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Radius="6" Opacity="0.05" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="CAJA COBRADA"
+                                   FontSize="10"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource Gray500}"
+                                   CharacterSpacing="0.8" />
+                            <Label Text="{Binding Resumen.TotalMontoPagadoFormateado}"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="#2E7D32" />
+                            <Label Text="Liquidado en firme"
+                                   FontSize="10"
+                                   TextColor="{StaticResource Gray500}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- KPI 2: Por Cobrar -->
+                    <Border Grid.Row="0"
+                            Grid.Column="1"
+                            Padding="14"
+                            BackgroundColor="White"
+                            Stroke="{StaticResource IndigoBorder}"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 14">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Radius="6" Opacity="0.05" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="POR COBRAR"
+                                   FontSize="10"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource Gray500}"
+                                   CharacterSpacing="0.8" />
+                            <Label Text="{Binding Resumen.TotalMontoApartadoFormateado}"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="#E65100" />
+                            <Label Text="Apartados pendientes"
+                                   FontSize="10"
+                                   TextColor="{StaticResource Gray500}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- KPI 3: Ocupacion Global de Boletos -->
+                    <Border Grid.Row="1"
+                            Grid.Column="0"
+                            Padding="14"
+                            BackgroundColor="White"
+                            Stroke="{StaticResource IndigoBorder}"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 14">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Radius="6" Opacity="0.05" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="OCUPACION"
+                                   FontSize="10"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource Gray500}"
+                                   CharacterSpacing="0.8" />
+                            <Label Text="{Binding Resumen.PorcentajeOcupacionTexto}"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource Primary}" />
+                            <ProgressBar Progress="{Binding Resumen.ProporcionOcupacion}"
+                                         ProgressColor="{StaticResource Primary}"
+                                         HeightRequest="4" />
+                            <Label Text="{Binding Resumen.TotalBoletosVendidos, StringFormat='{0} boletos ocupados'}"
+                                   FontSize="10"
+                                   TextColor="{StaticResource Gray500}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- KPI 4: Clientes Registrados -->
+                    <Border Grid.Row="1"
+                            Grid.Column="1"
+                            Padding="14"
+                            BackgroundColor="White"
+                            Stroke="{StaticResource IndigoBorder}"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 14">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Radius="6" Opacity="0.05" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="CLIENTES"
+                                   FontSize="10"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource Gray500}"
+                                   CharacterSpacing="0.8" />
+                            <Label Text="{Binding Resumen.TotalClientes}"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource MidnightBlue}" />
+                            <Label Text="Base activa registrada"
+                                   FontSize="10"
+                                   TextColor="{StaticResource Gray500}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- 3. Tarjeta Destacada: Sorteo Proximo a Jugar -->
+                <!-- Caso: Hay Sorteo Destacado -->
+                <Border IsVisible="{Binding Resumen.TieneSorteoDestacado}"
+                        Padding="18"
+                        BackgroundColor="{StaticResource MidnightBlue}"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 16">
+                    <Border.Shadow>
+                        <Shadow Brush="#0D1333" Offset="0,4" Radius="12" Opacity="0.22" />
+                    </Border.Shadow>
+
+                    <VerticalStackLayout Spacing="10">
+                        <!-- Fila Superior: Folio y Fecha Cierre -->
+                        <Grid ColumnDefinitions="Auto, *">
+                            <Border Grid.Column="0"
+                                    BackgroundColor="#1F2A5E"
+                                    Padding="8,4"
+                                    StrokeShape="RoundRectangle 6"
+                                    StrokeThickness="0">
+                                <Label Text="{Binding Resumen.SorteoDestacadoNumero, StringFormat='FOLIO #{0}'}"
+                                       FontSize="10"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource Secondary}" />
+                            </Border>
+                            <Label Grid.Column="1"
+                                   Text="{Binding Resumen.SorteoDestacadoFechaFinFormateada, StringFormat='Cierre: {0}'}"
+                                   FontSize="11"
+                                   TextColor="{StaticResource IndigoBorder}"
+                                   HorizontalOptions="End"
+                                   VerticalOptions="Center" />
+                        </Grid>
+
+                        <!-- Informacion del Sorteo -->
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="{Binding Resumen.SorteoDestacadoDescripcion}"
+                                   FontSize="17"
+                                   FontAttributes="Bold"
+                                   TextColor="White"
+                                   LineBreakMode="TailTruncation" />
+                            <Label Text="{Binding Resumen.SorteoDestacadoCostoFormateado, StringFormat='Costo por boleto: {0}'}"
+                                   FontSize="12"
+                                   TextColor="#CFD8DC" />
+                        </VerticalStackLayout>
+
+                        <!-- Resumen de Premios -->
+                        <Border BackgroundColor="#151D44"
+                                Padding="10,6"
+                                StrokeShape="RoundRectangle 8"
+                                StrokeThickness="0">
+                            <Label Text="{Binding Resumen.SorteoDestacadoPremiosResumen, StringFormat='Premios: {0}'}"
+                                   FontSize="11"
+                                   TextColor="#E8EAF6"
+                                   LineBreakMode="TailTruncation" />
+                        </Border>
+
+                        <!-- Progreso de Ventas -->
+                        <VerticalStackLayout Spacing="4">
+                            <Grid ColumnDefinitions="*, Auto">
+                                <Label Grid.Column="0"
+                                       Text="Avance de venta"
+                                       FontSize="11"
+                                       TextColor="#90CAF9" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding Resumen.SorteoDestacadoProgresoTexto}"
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       TextColor="White" />
+                            </Grid>
+                            <ProgressBar Progress="{Binding Resumen.SorteoDestacadoProgreso}"
+                                         ProgressColor="#4CAF50"
+                                         HeightRequest="6" />
+                        </VerticalStackLayout>
+
+                        <!-- Boton de Gestion -->
+                        <Button Text="Gestionar Boletos y Reservas"
+                                Command="{Binding NavegarAReservasSorteoDestacadoCommand}"
+                                BackgroundColor="{StaticResource Primary}"
+                                TextColor="White"
+                                FontAttributes="Bold"
+                                FontSize="13"
+                                HeightRequest="42"
+                                CornerRadius="8"
+                                Margin="0,4,0,0" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Caso: No Hay Sorteo Destacado -->
+                <Border Padding="18"
+                        BackgroundColor="White"
+                        Stroke="{StaticResource IndigoBorder}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 16">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding Resumen.TieneSorteoDestacado}" Value="True">
+                            <Setter Property="IsVisible" Value="False" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                        <Label Text="No hay sorteos programados"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource MidnightBlue}"
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="Comienza configurando el sorteo de esta semana para activar la gestion de ventas."
+                               FontSize="12"
+                               TextColor="{StaticResource Gray600}"
+                               HorizontalTextAlignment="Center" />
+                        <Button Text="Crear Nuevo Sorteo"
+                                Command="{Binding NavegarACrearSorteoCommand}"
+                                BackgroundColor="{StaticResource Primary}"
+                                TextColor="White"
+                                FontAttributes="Bold"
+                                FontSize="13"
+                                HeightRequest="40"
+                                CornerRadius="8"
+                                Margin="0,4,0,0" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- 4. Barra de Acciones Rapidas (Quick Actions) -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="ACCIONES RAPIDAS"
+                           FontSize="11"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource Gray500}"
+                           CharacterSpacing="1" />
+
+                    <Grid ColumnDefinitions="*, *, *, *" ColumnSpacing="8">
+
+                        <!-- Accion 1: Sorteos -->
+                        <Border Grid.Column="0"
+                                Padding="6,10"
+                                BackgroundColor="White"
+                                Stroke="{StaticResource IndigoBorder}"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 10">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding NavegarASorteosCommand}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                <Label Text="Sorteos"
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource PrimaryDarkText}"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Semanal"
+                                       FontSize="9"
+                                       TextColor="{StaticResource Gray500}"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Accion 2: + Sorteo -->
+                        <Border Grid.Column="1"
+                                Padding="6,10"
+                                BackgroundColor="White"
+                                Stroke="{StaticResource IndigoBorder}"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 10">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding NavegarACrearSorteoCommand}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                <Label Text="+ Sorteo"
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource PrimaryDarkText}"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Nuevo"
+                                       FontSize="9"
+                                       TextColor="{StaticResource Gray500}"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Accion 3: Clientes -->
+                        <Border Grid.Column="2"
+                                Padding="6,10"
+                                BackgroundColor="White"
+                                Stroke="{StaticResource IndigoBorder}"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 10">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding NavegarAClientesCommand}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                <Label Text="Clientes"
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource PrimaryDarkText}"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Cartera"
+                                       FontSize="9"
+                                       TextColor="{StaticResource Gray500}"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Accion 4: Premios -->
+                        <Border Grid.Column="3"
+                                Padding="6,10"
+                                BackgroundColor="White"
+                                Stroke="{StaticResource IndigoBorder}"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 10">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding NavegarAPremiosCommand}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                <Label Text="Premios"
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource PrimaryDarkText}"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Catalogo"
+                                       FontSize="9"
+                                       TextColor="{StaticResource Gray500}"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+                </VerticalStackLayout>
+
+                <!-- 5. Monitor de Cobranza y Alertas Operativas -->
+                <Border Padding="14,12"
+                        BackgroundColor="White"
+                        Stroke="{StaticResource IndigoBorder}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,2" Radius="6" Opacity="0.04" />
+                    </Border.Shadow>
+                    <Grid ColumnDefinitions="4, *, Auto" ColumnSpacing="12">
+                        <!-- Barra lateral indicadora de atencion -->
+                        <BoxView Grid.Column="0"
+                                 BackgroundColor="#FFA000"
+                                 CornerRadius="2"
+                                 VerticalOptions="Fill" />
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Apartados pendientes de confirmar"
+                                   FontSize="12"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource MidnightBlue}" />
+                            <Label Text="{Binding Resumen.TotalApartadosPendientes, StringFormat='{0} reservas activas requieren liquidacion o seguimiento'}"
+                                   FontSize="11"
+                                   TextColor="{StaticResource Gray500}" />
+                        </VerticalStackLayout>
+
+                        <Button Grid.Column="2"
+                                Text="Ver Sorteos"
+                                Command="{Binding NavegarASorteosCommand}"
+                                FontSize="11"
+                                HeightRequest="34"
+                                Padding="10,4"
+                                BackgroundColor="{StaticResource Secondary}"
+                                TextColor="{StaticResource PrimaryDarkText}"
+                                FontAttributes="Bold"
+                                CornerRadius="6"
+                                VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+
+</ContentPage>

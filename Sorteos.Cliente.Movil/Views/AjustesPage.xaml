@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Sorteos.Cliente.Movil.ViewModels"
+             x:Class="Sorteos.Cliente.Movil.Views.AjustesPage"
+             x:Name="thisPage"
+             x:DataType="vm:AjustesViewModel"
+             BackgroundColor="{StaticResource IndigoTint}"
+             Title="{Binding Title}">
+
+    <Grid>
+        <ScrollView VerticalScrollBarVisibility="Never">
+            <VerticalStackLayout Padding="16,14,16,32" Spacing="16">
+
+                <!-- 1. DATOS DEL NEGOCIO / ORGANIZADOR -->
+                <Border BackgroundColor="White"
+                        Stroke="{StaticResource IndigoBorder}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="16,14">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="DATOS DEL ORGANIZADOR"
+                               FontSize="10"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource IndigoAccent}"
+                               CharacterSpacing="1.2" />
+
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Nombre del Negocio / Sorteo" FontSize="11" TextColor="{StaticResource Gray600}" />
+                            <Border Stroke="{StaticResource Gray300}" StrokeThickness="1" StrokeShape="RoundRectangle 6" Padding="10,0" HeightRequest="44">
+                                <Entry Text="{Binding NombreNegocio}" Placeholder="Ej. Sorteos del Norte" FontSize="13" TextColor="{StaticResource PrimaryDarkText}" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Teléfono de Contacto (WhatsApp)" FontSize="11" TextColor="{StaticResource Gray600}" />
+                            <Border Stroke="{StaticResource Gray300}" StrokeThickness="1" StrokeShape="RoundRectangle 6" Padding="10,0" HeightRequest="44">
+                                <Entry Text="{Binding TelefonoContacto}" Keyboard="Telephone" Placeholder="10 dígitos (ej. 5512345678)" FontSize="13" TextColor="{StaticResource PrimaryDarkText}" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Instrucciones o Notas de Apartado" FontSize="11" TextColor="{StaticResource Gray600}" />
+                            <Border Stroke="{StaticResource Gray300}" StrokeThickness="1" StrokeShape="RoundRectangle 6" Padding="10,6" HeightRequest="72">
+                                <Editor Text="{Binding NotasApartado}" Placeholder="Ej. Tienes 24 horas para reportar tu pago con comprobante." FontSize="12" AutoSize="Disabled" TextColor="{StaticResource PrimaryDarkText}" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- 2. DATOS BANCARIOS PARA TRANSFERENCIA -->
+                <Border BackgroundColor="White"
+                        Stroke="{StaticResource IndigoBorder}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="16,14">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="CUENTAS DE PAGO / TRANSFERENCIA"
+                               FontSize="10"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource IndigoAccent}"
+                               CharacterSpacing="1.2" />
+
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Banco" FontSize="11" TextColor="{StaticResource Gray600}" />
+                            <Border Stroke="{StaticResource Gray300}" StrokeThickness="1" StrokeShape="RoundRectangle 6" Padding="10,0" HeightRequest="44">
+                                <Entry Text="{Binding BancoNombre}" Placeholder="Ej. BBVA, Banorte, Santander" FontSize="13" TextColor="{StaticResource PrimaryDarkText}" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Cuenta CLABE (18 dígitos)" FontSize="11" TextColor="{StaticResource Gray600}" />
+                            <Border Stroke="{StaticResource Gray300}" StrokeThickness="1" StrokeShape="RoundRectangle 6" Padding="10,0" HeightRequest="44">
+                                <Entry Text="{Binding CuentaClabe}" Keyboard="Numeric" Placeholder="012345678901234567" FontSize="13" TextColor="{StaticResource PrimaryDarkText}" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Número de Tarjeta (Opcional)" FontSize="11" TextColor="{StaticResource Gray600}" />
+                            <Border Stroke="{StaticResource Gray300}" StrokeThickness="1" StrokeShape="RoundRectangle 6" Padding="10,0" HeightRequest="44">
+                                <Entry Text="{Binding NumeroTarjeta}" Keyboard="Numeric" Placeholder="16 dígitos" FontSize="13" TextColor="{StaticResource PrimaryDarkText}" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Titular de la Cuenta" FontSize="11" TextColor="{StaticResource Gray600}" />
+                            <Border Stroke="{StaticResource Gray300}" StrokeThickness="1" StrokeShape="RoundRectangle 6" Padding="10,0" HeightRequest="44">
+                                <Entry Text="{Binding TitularCuenta}" Placeholder="Nombre completo del beneficiario" FontSize="13" TextColor="{StaticResource PrimaryDarkText}" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Botón Guardar Datos -->
+                        <Button Text="Guardar Información Comercial"
+                                Command="{Binding GuardarConfiguracionCommand}"
+                                BackgroundColor="{StaticResource Primary}"
+                                TextColor="White"
+                                FontAttributes="Bold"
+                                CornerRadius="8"
+                                HeightRequest="44"
+                                Margin="0,4,0,0" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- 3. PERMISOS DEL DISPOSITIVO -->
+                <Border BackgroundColor="White"
+                        Stroke="{StaticResource IndigoBorder}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="16,14">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="PERMISOS DE LA APLICACIÓN"
+                               FontSize="10"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource IndigoAccent}"
+                               CharacterSpacing="1.2" />
+
+                        <!-- Permiso Cámara -->
+                        <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto" ColumnSpacing="10" RowSpacing="2">
+                            <Label Grid.Row="0" Grid.Column="0" Text="Cámara (Comprobantes)" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource MidnightBlue}" />
+                            <Label Grid.Row="1" Grid.Column="0" Text="{Binding CamaraEstadoTexto}" FontSize="11" TextColor="{StaticResource Gray600}" />
+                            <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                                    Text="Solicitar"
+                                    Command="{Binding SolicitarPermisoCamaraCommand}"
+                                    IsVisible="{Binding CamaraConcedida, Converter={StaticResource InverseBoolConverter}, FallbackValue=True}"
+                                    BackgroundColor="{StaticResource Secondary}"
+                                    TextColor="{StaticResource Primary}"
+                                    FontSize="11"
+                                    FontAttributes="Bold"
+                                    CornerRadius="6"
+                                    HeightRequest="36"
+                                    Padding="10,0" />
+                        </Grid>
+
+                        <BoxView HeightRequest="1" Color="{StaticResource IndigoBorder}" />
+
+                        <!-- Permiso Galería -->
+                        <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto" ColumnSpacing="10" RowSpacing="2">
+                            <Label Grid.Row="0" Grid.Column="0" Text="Galería y Fotos" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource MidnightBlue}" />
+                            <Label Grid.Row="1" Grid.Column="0" Text="{Binding GaleriaEstadoTexto}" FontSize="11" TextColor="{StaticResource Gray600}" />
+                            <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                                    Text="Solicitar"
+                                    Command="{Binding SolicitarPermisoGaleriaCommand}"
+                                    IsVisible="{Binding GaleriaConcedida, Converter={StaticResource InverseBoolConverter}, FallbackValue=True}"
+                                    BackgroundColor="{StaticResource Secondary}"
+                                    TextColor="{StaticResource Primary}"
+                                    FontSize="11"
+                                    FontAttributes="Bold"
+                                    CornerRadius="6"
+                                    HeightRequest="36"
+                                    Padding="10,0" />
+                        </Grid>
+
+                        <BoxView HeightRequest="1" Color="{StaticResource IndigoBorder}" />
+
+                        <Button Text="Abrir Ajustes del Sistema"
+                                Command="{Binding AbrirConfiguracionSistemaCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{StaticResource Primary}"
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                HeightRequest="38" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- 4. SEGURIDAD Y CONTROL DE ACCESO -->
+                <Border BackgroundColor="White"
+                        Stroke="{StaticResource IndigoBorder}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="16,14">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="SEGURIDAD Y CONTROL DE ACCESO"
+                               FontSize="10"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource IndigoAccent}"
+                               CharacterSpacing="1.2" />
+
+                        <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="Requerir PIN al Iniciar" FontSize="13" FontAttributes="Bold" TextColor="{StaticResource MidnightBlue}" />
+                                <Label Text="Solicita un código de 4 dígitos para abrir la aplicación" FontSize="11" TextColor="{StaticResource Gray600}" />
+                            </VerticalStackLayout>
+                            <Switch Grid.Column="1"
+                                    IsToggled="{Binding RequierePin}"
+                                    OnColor="{StaticResource Primary}"
+                                    ThumbColor="White">
+                                <Switch.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding AlternarRequierePinCommand}" />
+                                </Switch.GestureRecognizers>
+                            </Switch>
+                        </Grid>
+
+                        <Button Text="Establecer o Cambiar PIN"
+                                Command="{Binding AbrirModalCambiarPinCommand}"
+                                BackgroundColor="{StaticResource Secondary}"
+                                TextColor="{StaticResource PrimaryDarkText}"
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                CornerRadius="8"
+                                HeightRequest="40" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- 5. INFORMACIÓN LEGAL Y VERSIÓN -->
+                <Border BackgroundColor="White"
+                        Stroke="{StaticResource IndigoBorder}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="16,14">
+                    <VerticalStackLayout Spacing="8">
+                        <Button Text="Consultar Términos y Condiciones"
+                                Command="{Binding VerTerminosCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{StaticResource Primary}"
+                                FontSize="13"
+                                FontAttributes="Bold"
+                                HorizontalOptions="Start" />
+
+                        <Label Text="{Binding VersionAppTexto}"
+                               FontSize="11"
+                               TextColor="{StaticResource Gray500}"
+                               Margin="12,0" />
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- MODAL CAMBIO DE PIN -->
+        <Grid BackgroundColor="#80000000"
+              IsVisible="{Binding MostrarModalCambiarPin}"
+              Padding="24">
+            <Border BackgroundColor="White"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="20"
+                    VerticalOptions="Center"
+                    MaximumWidthRequest="360">
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="Configurar PIN de Seguridad"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource MidnightBlue}"
+                           HorizontalOptions="Center" />
+
+                    <Label Text="Ingresa un PIN numérico de 4 dígitos para proteger el acceso a la app."
+                           FontSize="12"
+                           TextColor="{StaticResource Gray600}"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center" />
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Nuevo PIN (4 dígitos)" FontSize="11" TextColor="{StaticResource Gray600}" />
+                        <Border Stroke="{StaticResource Gray300}" StrokeThickness="1" StrokeShape="RoundRectangle 6" Padding="10,0" HeightRequest="44">
+                            <Entry Text="{Binding NuevoPin}" Keyboard="Numeric" IsPassword="True" MaxLength="4" FontSize="14" HorizontalTextAlignment="Center" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Confirmar PIN" FontSize="11" TextColor="{StaticResource Gray600}" />
+                        <Border Stroke="{StaticResource Gray300}" StrokeThickness="1" StrokeShape="RoundRectangle 6" Padding="10,0" HeightRequest="44">
+                            <Entry Text="{Binding ConfirmarPin}" Keyboard="Numeric" IsPassword="True" MaxLength="4" FontSize="14" HorizontalTextAlignment="Center" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <Grid ColumnDefinitions="*, *" ColumnSpacing="10" Margin="0,8,0,0">
+                        <Button Grid.Column="0"
+                                Text="Cancelar"
+                                Command="{Binding CerrarModalCambiarPinCommand}"
+                                BackgroundColor="{StaticResource Secondary}"
+                                TextColor="{StaticResource PrimaryDarkText}"
+                                FontAttributes="Bold"
+                                CornerRadius="8"
+                                HeightRequest="44" />
+                        <Button Grid.Column="1"
+                                Text="Guardar PIN"
+                                Command="{Binding GuardarNuevoPinCommand}"
+                                BackgroundColor="{StaticResource Primary}"
+                                TextColor="White"
+                                FontAttributes="Bold"
+                                CornerRadius="8"
+                                HeightRequest="44" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
+
+</ContentPage>
+

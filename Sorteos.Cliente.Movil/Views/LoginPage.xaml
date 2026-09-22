@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Sorteos.Cliente.Movil.ViewModels"
+             x:Class="Sorteos.Cliente.Movil.Views.LoginPage"
+             x:Name="thisPage"
+             x:DataType="vm:LoginViewModel"
+             BackgroundColor="{StaticResource IndigoTint}"
+             Shell.NavBarIsVisible="False">
+
+    <ScrollView VerticalScrollBarVisibility="Never">
+        <VerticalStackLayout Padding="24,40,24,32"
+                             Spacing="24"
+                             VerticalOptions="Center">
+
+            <!-- Encabezado / Logo Institucional -->
+            <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                <Border WidthRequest="64"
+                        HeightRequest="64"
+                        StrokeShape="RoundRectangle 32"
+                        BackgroundColor="{StaticResource Primary}"
+                        Stroke="Transparent"
+                        HorizontalOptions="Center">
+                    <Label Text="#"
+                           FontSize="28"
+                           FontAttributes="Bold"
+                           TextColor="White"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+                <Label Text="Sorteos Móvil"
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource MidnightBlue}"
+                       HorizontalOptions="Center" />
+                <Label Text="Ingresa tu PIN de seguridad"
+                       FontSize="13"
+                       TextColor="{StaticResource Gray600}"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <!-- Círculos de Estado del PIN (4 dígitos) -->
+            <HorizontalStackLayout Spacing="16" HorizontalOptions="Center" Margin="0,10">
+                <!-- Dígito 1 -->
+                <Border WidthRequest="18"
+                        HeightRequest="18"
+                        StrokeShape="RoundRectangle 9"
+                        Stroke="{StaticResource IndigoBorder}"
+                        StrokeThickness="2"
+                        BackgroundColor="{Binding Digito1Lleno, Converter={StaticResource BoolToColorConverter}, FallbackValue=Transparent}">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding Digito1Lleno}" Value="True">
+                            <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                            <Setter Property="Stroke" Value="{StaticResource Primary}" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Border" Binding="{Binding Digito1Lleno}" Value="False">
+                            <Setter Property="BackgroundColor" Value="Transparent" />
+                            <Setter Property="Stroke" Value="{StaticResource IndigoBorder}" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                </Border>
+
+                <!-- Dígito 2 -->
+                <Border WidthRequest="18"
+                        HeightRequest="18"
+                        StrokeShape="RoundRectangle 9"
+                        StrokeThickness="2">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding Digito2Lleno}" Value="True">
+                            <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                            <Setter Property="Stroke" Value="{StaticResource Primary}" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Border" Binding="{Binding Digito2Lleno}" Value="False">
+                            <Setter Property="BackgroundColor" Value="Transparent" />
+                            <Setter Property="Stroke" Value="{StaticResource IndigoBorder}" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                </Border>
+
+                <!-- Dígito 3 -->
+                <Border WidthRequest="18"
+                        HeightRequest="18"
+                        StrokeShape="RoundRectangle 9"
+                        StrokeThickness="2">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding Digito3Lleno}" Value="True">
+                            <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                            <Setter Property="Stroke" Value="{StaticResource Primary}" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Border" Binding="{Binding Digito3Lleno}" Value="False">
+                            <Setter Property="BackgroundColor" Value="Transparent" />
+                            <Setter Property="Stroke" Value="{StaticResource IndigoBorder}" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                </Border>
+
+                <!-- Dígito 4 -->
+                <Border WidthRequest="18"
+                        HeightRequest="18"
+                        StrokeShape="RoundRectangle 9"
+                        StrokeThickness="2">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding Digito4Lleno}" Value="True">
+                            <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                            <Setter Property="Stroke" Value="{StaticResource Primary}" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Border" Binding="{Binding Digito4Lleno}" Value="False">
+                            <Setter Property="BackgroundColor" Value="Transparent" />
+                            <Setter Property="Stroke" Value="{StaticResource IndigoBorder}" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                </Border>
+            </HorizontalStackLayout>
+
+            <!-- Mensaje de Error -->
+            <Label Text="{Binding MensajeError}"
+                   IsVisible="{Binding MostrarError}"
+                   FontSize="12"
+                   FontAttributes="Bold"
+                   TextColor="#D32F2F"
+                   HorizontalOptions="Center" />
+
+            <!-- Teclado Numérico Táctil -->
+            <Grid ColumnDefinitions="72, 72, 72"
+                  RowDefinitions="64, 64, 64, 64"
+                  ColumnSpacing="18"
+                  RowSpacing="14"
+                  HorizontalOptions="Center">
+
+                <!-- Fila 1 -->
+                <Button Grid.Row="0" Grid.Column="0" Text="1" FontSize="22" FontAttributes="Bold"
+                        TextColor="{StaticResource PrimaryDarkText}" BackgroundColor="White" CornerRadius="32"
+                        Command="{Binding IngresarDigitoCommand}" CommandParameter="1" />
+                <Button Grid.Row="0" Grid.Column="1" Text="2" FontSize="22" FontAttributes="Bold"
+                        TextColor="{StaticResource PrimaryDarkText}" BackgroundColor="White" CornerRadius="32"
+                        Command="{Binding IngresarDigitoCommand}" CommandParameter="2" />
+                <Button Grid.Row="0" Grid.Column="2" Text="3" FontSize="22" FontAttributes="Bold"
+                        TextColor="{StaticResource PrimaryDarkText}" BackgroundColor="White" CornerRadius="32"
+                        Command="{Binding IngresarDigitoCommand}" CommandParameter="3" />
+
+                <!-- Fila 2 -->
+                <Button Grid.Row="1" Grid.Column="0" Text="4" FontSize="22" FontAttributes="Bold"
+                        TextColor="{StaticResource PrimaryDarkText}" BackgroundColor="White" CornerRadius="32"
+                        Command="{Binding IngresarDigitoCommand}" CommandParameter="4" />
+                <Button Grid.Row="1" Grid.Column="1" Text="5" FontSize="22" FontAttributes="Bold"
+                        TextColor="{StaticResource PrimaryDarkText}" BackgroundColor="White" CornerRadius="32"
+                        Command="{Binding IngresarDigitoCommand}" CommandParameter="5" />
+                <Button Grid.Row="1" Grid.Column="2" Text="6" FontSize="22" FontAttributes="Bold"
+                        TextColor="{StaticResource PrimaryDarkText}" BackgroundColor="White" CornerRadius="32"
+                        Command="{Binding IngresarDigitoCommand}" CommandParameter="6" />
+
+                <!-- Fila 3 -->
+                <Button Grid.Row="2" Grid.Column="0" Text="7" FontSize="22" FontAttributes="Bold"
+                        TextColor="{StaticResource PrimaryDarkText}" BackgroundColor="White" CornerRadius="32"
+                        Command="{Binding IngresarDigitoCommand}" CommandParameter="7" />
+                <Button Grid.Row="2" Grid.Column="1" Text="8" FontSize="22" FontAttributes="Bold"
+                        TextColor="{StaticResource PrimaryDarkText}" BackgroundColor="White" CornerRadius="32"
+                        Command="{Binding IngresarDigitoCommand}" CommandParameter="8" />
+                <Button Grid.Row="2" Grid.Column="2" Text="9" FontSize="22" FontAttributes="Bold"
+                        TextColor="{StaticResource PrimaryDarkText}" BackgroundColor="White" CornerRadius="32"
+                        Command="{Binding IngresarDigitoCommand}" CommandParameter="9" />
+
+                <!-- Fila 4 -->
+                <Button Grid.Row="3" Grid.Column="0" Text="C" FontSize="16" FontAttributes="Bold"
+                        TextColor="{StaticResource SecondaryDarkText}" BackgroundColor="{StaticResource Secondary}" CornerRadius="32"
+                        Command="{Binding LimpiarPinCommand}" />
+                <Button Grid.Row="3" Grid.Column="1" Text="0" FontSize="22" FontAttributes="Bold"
+                        TextColor="{StaticResource PrimaryDarkText}" BackgroundColor="White" CornerRadius="32"
+                        Command="{Binding IngresarDigitoCommand}" CommandParameter="0" />
+                <Button Grid.Row="3" Grid.Column="2" Text="&lt;" FontSize="18" FontAttributes="Bold"
+                        TextColor="{StaticResource SecondaryDarkText}" BackgroundColor="{StaticResource Secondary}" CornerRadius="32"
+                        Command="{Binding BorrarDigitoCommand}" />
+            </Grid>
+
+            <!-- Enlace a Términos y Condiciones -->
+            <Button Text="Términos y Condiciones del Sistema"
+                    Command="{Binding VerTerminosCommand}"
+                    FontSize="12"
+                    TextColor="{StaticResource Primary}"
+                    BackgroundColor="Transparent"
+                    HorizontalOptions="Center"
+                    Margin="0,16,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
+

@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Sorteos.Cliente.Movil.ViewModels"
+             xmlns:models="clr-namespace:Sorteos.Cliente.Movil.Models"
+             x:Class="Sorteos.Cliente.Movil.Views.SorteoCrearPage"
+             x:Name="thisPage"
+             x:DataType="vm:SorteoCrearViewModel"
+             Title="{Binding Title}">
+
+    <Grid>
+        <ScrollView Padding="16">
+        <VerticalStackLayout Spacing="16">
+
+            <!-- Tarjeta: Dia Asignado (Solo Lectura) -->
+            <Border Stroke="#D0D0D0"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    BackgroundColor="{StaticResource IndigoTint}"
+                    Padding="16">
+                <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto">
+                    <Label Grid.Row="0" Grid.Column="0"
+                           Text="Día del Sorteo"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource Primary}" />
+                    <Label Grid.Row="1" Grid.Column="0"
+                           Text="{Binding NombreDiaSeleccionado}"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource PrimaryDarkText}" />
+                    <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                            BackgroundColor="{StaticResource Secondary}"
+                            Stroke="{StaticResource IndigoBorder}"
+                            StrokeThickness="1"
+                            Padding="8,4"
+                            StrokeShape="RoundRectangle 6"
+                            VerticalOptions="Center">
+                        <Label Text="Fijo"
+                               FontSize="11"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource Primary}" />
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Tarjeta: Datos Generales -->
+            <Border Stroke="#D0D0D0"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    BackgroundColor="White"
+                    Padding="16">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Información del Sorteo"
+                           FontSize="15"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource PrimaryDarkText}" />
+
+                    <!-- Nombre / Descripcion -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Nombre del Sorteo"
+                               FontSize="13"
+                               FontAttributes="Bold"
+                               TextColor="#555555" />
+                        <Entry Text="{Binding Descripcion}"
+                               Placeholder="Ej. Sorteo Semanal Especial"
+                               ClearButtonVisibility="WhileEditing" />
+                    </VerticalStackLayout>
+
+                    <!-- Folio / Numero -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Número de Sorteo / Folio"
+                               FontSize="13"
+                               FontAttributes="Bold"
+                               TextColor="#555555" />
+                        <Entry Text="{Binding NumeroDeSorteo}"
+                               Placeholder="Ej. 01"
+                               ClearButtonVisibility="WhileEditing" />
+                    </VerticalStackLayout>
+
+                    <!-- Se Juega Con -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Modalidad (Se Juega Con)"
+                               FontSize="13"
+                               FontAttributes="Bold"
+                               TextColor="#555555" />
+                        <Entry Text="{Binding SeJuegaCon}"
+                               Placeholder="Ej. Lotería Nacional"
+                               ClearButtonVisibility="WhileEditing" />
+                    </VerticalStackLayout>
+
+                    <!-- Imagen del Sorteo -->
+                    <VerticalStackLayout Spacing="6" Margin="0,4,0,0">
+                        <Label Text="Imagen del Sorteo (Opcional)"
+                               FontSize="13"
+                               FontAttributes="Bold"
+                               TextColor="#555555" />
+
+                        <!-- Estado: Sin Imagen -->
+                        <Border Stroke="#CCCCCC"
+                                StrokeThickness="1"
+                                StrokeDashArray="4,2"
+                                StrokeShape="RoundRectangle 8"
+                                BackgroundColor="#FAFAFA"
+                                Padding="16"
+                                IsVisible="True">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding TieneImagen}" Value="True">
+                                    <Setter Property="IsVisible" Value="False" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                                <Label Text="Agrega una imagen o fotografía para identificar este sorteo."
+                                       FontSize="12"
+                                       TextColor="#777777"
+                                       HorizontalTextAlignment="Center" />
+                                <Button Text="Tomar o Elegir Foto"
+                                        Command="{Binding SeleccionarImagenCommand}"
+                                        BackgroundColor="{StaticResource Secondary}"
+                                        TextColor="{StaticResource Primary}"
+                                        FontAttributes="Bold"
+                                        FontSize="13"
+                                        HeightRequest="40"
+                                        Padding="16,0"
+                                        CornerRadius="8"
+                                        HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Estado: Con Imagen (Miniatura y Acciones) -->
+                        <VerticalStackLayout Spacing="8"
+                                             IsVisible="{Binding TieneImagen}">
+                            <Border Stroke="#DDDDDD"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 8"
+                                    HeightRequest="180"
+                                    BackgroundColor="#F0F0F0">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding VerImagenCompletaCommand}" />
+                                </Border.GestureRecognizers>
+                                <Grid>
+                                    <Image Source="{Binding RutaImagen}"
+                                           Aspect="AspectFill"
+                                           HorizontalOptions="Fill"
+                                           VerticalOptions="Fill" />
+                                    <!-- Badge indicador de ampliacion -->
+                                    <Border HorizontalOptions="End"
+                                            VerticalOptions="End"
+                                            Margin="8"
+                                            Padding="8,4"
+                                            BackgroundColor="#A6000000"
+                                            StrokeShape="RoundRectangle 6"
+                                            StrokeThickness="0">
+                                        <Label Text="Toca para ver completa"
+                                               FontSize="11"
+                                               TextColor="White"
+                                               FontAttributes="Bold" />
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <Grid ColumnDefinitions="*, *" ColumnSpacing="8">
+                                <Button Grid.Column="0"
+                                        Text="Cambiar Foto"
+                                        Command="{Binding SeleccionarImagenCommand}"
+                                        BackgroundColor="{StaticResource Secondary}"
+                                        TextColor="{StaticResource Primary}"
+                                        FontAttributes="Bold"
+                                        FontSize="12"
+                                        HeightRequest="36"
+                                        CornerRadius="6" />
+                                <Button Grid.Column="1"
+                                        Text="Quitar Foto"
+                                        Command="{Binding QuitarImagenCommand}"
+                                        BackgroundColor="#FFEBEE"
+                                        TextColor="#D32F2F"
+                                        FontAttributes="Bold"
+                                        FontSize="12"
+                                        HeightRequest="36"
+                                        CornerRadius="6" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Tarjeta: Reglas de Emision y Costo -->
+            <Border Stroke="#D0D0D0"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    BackgroundColor="White"
+                    Padding="16">
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="Reglas de Emisión y Costo"
+                           FontSize="15"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource PrimaryDarkText}" />
+
+                    <!-- Costo del Boleto -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Costo por Boleto ($ MXN)"
+                               FontSize="13"
+                               FontAttributes="Bold"
+                               TextColor="#555555" />
+                        <Entry Text="{Binding CostoTexto}"
+                               Placeholder="100.00"
+                               Keyboard="Numeric"
+                               ClearButtonVisibility="WhileEditing" />
+                    </VerticalStackLayout>
+
+                    <!-- Cantidad de Numeros (Maximo 1000) -->
+                    <VerticalStackLayout Spacing="6">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0"
+                                   Text="Cantidad de Números"
+                                   FontSize="13"
+                                   FontAttributes="Bold"
+                                   TextColor="#555555" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding CantidadNumeros, StringFormat='{0} números'}"
+                                   FontSize="13"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource Primary}" />
+                        </Grid>
+
+                        <!-- Pildoras de seleccion rapida -->
+                        <Grid ColumnDefinitions="*, *, *, *, *" ColumnSpacing="6">
+                            <Button Grid.Column="0"
+                                    Text="100"
+                                    Command="{Binding SeleccionarCantidadNumerosCommand}"
+                                    CommandParameter="100"
+                                    HeightRequest="36"
+                                    Padding="0"
+                                    FontSize="12"
+                                    CornerRadius="6"
+                                    BackgroundColor="#F0F0F0"
+                                    TextColor="#333333">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding EsCantidad100}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+                                        <Setter Property="TextColor" Value="{StaticResource Primary}" />
+                                        <Setter Property="FontAttributes" Value="Bold" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Column="1"
+                                    Text="200"
+                                    Command="{Binding SeleccionarCantidadNumerosCommand}"
+                                    CommandParameter="200"
+                                    HeightRequest="36"
+                                    Padding="0"
+                                    FontSize="12"
+                                    CornerRadius="6"
+                                    BackgroundColor="#F0F0F0"
+                                    TextColor="#333333">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding EsCantidad200}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+                                        <Setter Property="TextColor" Value="{StaticResource Primary}" />
+                                        <Setter Property="FontAttributes" Value="Bold" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Column="2"
+                                    Text="500"
+                                    Command="{Binding SeleccionarCantidadNumerosCommand}"
+                                    CommandParameter="500"
+                                    HeightRequest="36"
+                                    Padding="0"
+                                    FontSize="12"
+                                    CornerRadius="6"
+                                    BackgroundColor="#F0F0F0"
+                                    TextColor="#333333">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding EsCantidad500}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+                                        <Setter Property="TextColor" Value="{StaticResource Primary}" />
+                                        <Setter Property="FontAttributes" Value="Bold" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Column="3"
+                                    Text="1000"
+                                    Command="{Binding SeleccionarCantidadNumerosCommand}"
+                                    CommandParameter="1000"
+                                    HeightRequest="36"
+                                    Padding="0"
+                                    FontSize="12"
+                                    CornerRadius="6"
+                                    BackgroundColor="#F0F0F0"
+                                    TextColor="#333333">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding EsCantidad1000}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+                                        <Setter Property="TextColor" Value="{StaticResource Primary}" />
+                                        <Setter Property="FontAttributes" Value="Bold" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Column="4"
+                                    Text="Otro"
+                                    Command="{Binding SeleccionarOtroCantidadCommand}"
+                                    HeightRequest="36"
+                                    Padding="0"
+                                    FontSize="12"
+                                    CornerRadius="6"
+                                    BackgroundColor="#F0F0F0"
+                                    TextColor="#333333">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding EsOtroCantidad}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+                                        <Setter Property="TextColor" Value="{StaticResource Primary}" />
+                                        <Setter Property="FontAttributes" Value="Bold" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                        </Grid>
+
+                        <!-- Barra Deslizadora para Ajuste Libre (1 a 1,000) -->
+                        <VerticalStackLayout Spacing="2" Margin="0,4,0,0">
+                            <Slider Minimum="1"
+                                    Maximum="1000"
+                                    Value="{Binding CantidadNumerosSlider}"
+                                    MinimumTrackColor="{StaticResource Primary}"
+                                    ThumbColor="{StaticResource Primary}" />
+                            <Grid ColumnDefinitions="Auto, *, Auto">
+                                <Label Grid.Column="0" Text="1" FontSize="11" TextColor="#888888" />
+                                <Label Grid.Column="1" Text="Desliza para ajustar" FontSize="11" TextColor="#888888" HorizontalOptions="Center" />
+                                <Label Grid.Column="2" Text="1,000" FontSize="11" TextColor="#888888" />
+                            </Grid>
+                        </VerticalStackLayout>
+
+                        <!-- Entrada Manual de Cantidad (Habilitada al pulsar Otro) -->
+                        <VerticalStackLayout Spacing="4"
+                                             IsVisible="{Binding EsOtroCantidad}"
+                                             Margin="0,4,0,0">
+                            <Label Text="Ingresa la cantidad exacta de números (1 - 1,000):"
+                                   FontSize="12"
+                                   TextColor="{StaticResource PrimaryDarkText}"
+                                   FontAttributes="Bold" />
+                            <Entry Text="{Binding CantidadPersonalizadaTexto}"
+                                   Placeholder="Ej. 350"
+                                   Keyboard="Numeric"
+                                   ClearButtonVisibility="WhileEditing" />
+                        </VerticalStackLayout>
+
+                        <Label Text="Límite máximo permitido: 1,000 números por sorteo."
+                               FontSize="11"
+                               TextColor="#777777" />
+                    </VerticalStackLayout>
+
+                    <!-- Oportunidades por Boleto -->
+                    <VerticalStackLayout Spacing="6">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0"
+                                   Text="Oportunidades por Boleto"
+                                   FontSize="13"
+                                   FontAttributes="Bold"
+                                   TextColor="#555555" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding Oportunidades, StringFormat='{0} oportunidad(es)'}"
+                                   FontSize="13"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource Primary}" />
+                        </Grid>
+
+                        <!-- Pildoras de seleccion de oportunidades con feedback visual -->
+                        <Grid ColumnDefinitions="*, *, *, *, *" ColumnSpacing="6">
+                            <Button Grid.Column="0"
+                                    Text="1"
+                                    Command="{Binding SeleccionarOportunidadCommand}"
+                                    CommandParameter="1"
+                                    HeightRequest="36"
+                                    Padding="0"
+                                    FontSize="13"
+                                    CornerRadius="6"
+                                    BackgroundColor="#F0F0F0"
+                                    TextColor="#333333">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding EsOportunidad1}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+                                        <Setter Property="TextColor" Value="{StaticResource Primary}" />
+                                        <Setter Property="FontAttributes" Value="Bold" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Column="1"
+                                    Text="2"
+                                    Command="{Binding SeleccionarOportunidadCommand}"
+                                    CommandParameter="2"
+                                    HeightRequest="36"
+                                    Padding="0"
+                                    FontSize="13"
+                                    CornerRadius="6"
+                                    BackgroundColor="#F0F0F0"
+                                    TextColor="#333333">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding EsOportunidad2}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+                                        <Setter Property="TextColor" Value="{StaticResource Primary}" />
+                                        <Setter Property="FontAttributes" Value="Bold" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Column="2"
+                                    Text="3"
+                                    Command="{Binding SeleccionarOportunidadCommand}"
+                                    CommandParameter="3"
+                                    HeightRequest="36"
+                                    Padding="0"
+                                    FontSize="13"
+                                    CornerRadius="6"
+                                    BackgroundColor="#F0F0F0"
+                                    TextColor="#333333">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding EsOportunidad3}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+                                        <Setter Property="TextColor" Value="{StaticResource Primary}" />
+                                        <Setter Property="FontAttributes" Value="Bold" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Column="3"
+                                    Text="4"
+                                    Command="{Binding SeleccionarOportunidadCommand}"
+                                    CommandParameter="4"
+                                    HeightRequest="36"
+                                    Padding="0"
+                                    FontSize="13"
+                                    CornerRadius="6"
+                                    BackgroundColor="#F0F0F0"
+                                    TextColor="#333333">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding EsOportunidad4}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+                                        <Setter Property="TextColor" Value="{StaticResource Primary}" />
+                                        <Setter Property="FontAttributes" Value="Bold" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Column="4"
+                                    Text="Otro"
+                                    Command="{Binding SeleccionarOtroOportunidadCommand}"
+                                    HeightRequest="36"
+                                    Padding="0"
+                                    FontSize="12"
+                                    CornerRadius="6"
+                                    BackgroundColor="#F0F0F0"
+                                    TextColor="#333333">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding EsOtroOportunidad}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+                                        <Setter Property="TextColor" Value="{StaticResource Primary}" />
+                                        <Setter Property="FontAttributes" Value="Bold" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                        </Grid>
+
+                        <!-- Barra Deslizadora para Oportunidades (1 a 10) -->
+                        <VerticalStackLayout Spacing="2" Margin="0,4,0,0">
+                            <Slider Minimum="1"
+                                    Maximum="10"
+                                    Value="{Binding OportunidadesSlider}"
+                                    MinimumTrackColor="{StaticResource Primary}"
+                                    ThumbColor="{StaticResource Primary}" />
+                            <Grid ColumnDefinitions="Auto, *, Auto">
+                                <Label Grid.Column="0" Text="1" FontSize="11" TextColor="#888888" />
+                                <Label Grid.Column="1" Text="Desliza para ajustar" FontSize="11" TextColor="#888888" HorizontalOptions="Center" />
+                                <Label Grid.Column="2" Text="10" FontSize="11" TextColor="#888888" />
+                            </Grid>
+                        </VerticalStackLayout>
+
+                        <!-- Entrada Manual de Oportunidades (Habilitada al pulsar Otro) -->
+                        <VerticalStackLayout Spacing="4"
+                                             IsVisible="{Binding EsOtroOportunidad}"
+                                             Margin="0,4,0,0">
+                            <Label Text="Ingresa la cantidad exacta de oportunidades (1 - 10):"
+                                   FontSize="12"
+                                   TextColor="{StaticResource PrimaryDarkText}"
+                                   FontAttributes="Bold" />
+                            <Entry Text="{Binding OportunidadPersonalizadaTexto}"
+                                   Placeholder="Ej. 5"
+                                   Keyboard="Numeric"
+                                   ClearButtonVisibility="WhileEditing" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Tarjeta: Asignacion de Premios -->
+            <Border Stroke="#D0D0D0"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    BackgroundColor="White"
+                    Padding="16">
+                <VerticalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Grid.Column="0"
+                               Text="Premios del Sorteo"
+                               FontSize="15"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource PrimaryDarkText}"
+                               VerticalOptions="Center" />
+                        <Button Grid.Column="1"
+                                Text="+ Nuevo Premio"
+                                Command="{Binding NuevoPremioCommand}"
+                                BackgroundColor="{StaticResource Secondary}"
+                                TextColor="{StaticResource Primary}"
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                HeightRequest="34"
+                                CornerRadius="6"
+                                Padding="10,0" />
+                    </Grid>
+
+                    <Label Text="Selecciona los premios que se entregarán en este sorteo:"
+                           FontSize="12"
+                           TextColor="#666666" />
+
+                    <!-- Coleccion de Premios Seleccionables -->
+                    <CollectionView ItemsSource="{Binding PremiosDisponibles}"
+                                    SelectionMode="None">
+                        <CollectionView.EmptyView>
+                            <Label Text="No hay premios registrados en el catálogo. Usa '+ Nuevo Premio' para registrar uno."
+                                   FontSize="13"
+                                   TextColor="#888888"
+                                   HorizontalOptions="Center"
+                                   Margin="0,12" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:PremioSeleccionableItem">
+                                <Border Stroke="#EAEAEA"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 8"
+                                        BackgroundColor="#FAFAFA"
+                                        Padding="10,8"
+                                        Margin="0,3">
+                                    <Grid ColumnDefinitions="Auto, Auto, *">
+                                        <CheckBox Grid.Column="0"
+                                                  IsChecked="{Binding EstaSeleccionado}"
+                                                  Color="{StaticResource Primary}"
+                                                  VerticalOptions="Center" />
+                                        <Border Grid.Column="1"
+                                                BackgroundColor="{StaticResource Secondary}"
+                                                Padding="6,3"
+                                                StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 4"
+                                                Margin="6,0,8,0"
+                                                VerticalOptions="Center">
+                                            <Label Text="{Binding Premio.LugarTexto}"
+                                                   FontSize="11"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{StaticResource Primary}" />
+                                        </Border>
+                                        <Label Grid.Column="2"
+                                               Text="{Binding Premio.ValorFormateado}"
+                                               FontSize="14"
+                                               FontAttributes="Bold"
+                                               TextColor="{StaticResource PrimaryDarkText}"
+                                               VerticalOptions="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Botones de Accion -->
+            <VerticalStackLayout Spacing="10" Margin="0,8,0,16">
+                <Button Text="Guardar Sorteo"
+                        Command="{Binding GuardarSorteoCommand}"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        CornerRadius="8"
+                        HeightRequest="48" />
+
+                <Button Text="Cancelar"
+                        Command="{Binding CancelarCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="{StaticResource Primary}"
+                        BorderColor="{StaticResource Primary}"
+                        BorderWidth="1"
+                        CornerRadius="8"
+                        HeightRequest="44" />
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+    <!-- Modal Overlay: Visor de Imagen del Sorteo a Pantalla Completa -->
+    <Grid ZIndex="999"
+          IsVisible="{Binding MostrarVisorImagen}"
+          BackgroundColor="#D9000000"
+          RowDefinitions="Auto, *, Auto"
+          Padding="16, 24">
+        <!-- Barra Superior del Visor -->
+        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0, 0, 0, 12">
+            <Label Grid.Column="0"
+                   Text="{Binding TituloVisorImagen}"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   VerticalOptions="Center" />
+            <Button Grid.Column="1"
+                    Text="Cerrar"
+                    FontSize="13"
+                    FontAttributes="Bold"
+                    HeightRequest="36"
+                    CornerRadius="8"
+                    Padding="14, 0"
+                    BackgroundColor="#424242"
+                    TextColor="White"
+                    Command="{Binding CerrarVisorImagenCommand}" />
+        </Grid>
+
+        <!-- Imagen del Sorteo en su totalidad -->
+        <Border Grid.Row="1"
+                StrokeShape="RoundRectangle 12"
+                Stroke="#37474F"
+                BackgroundColor="#121212"
+                Padding="4">
+            <Image Source="{Binding RutaImagen}"
+                   Aspect="AspectFit"
+                   HorizontalOptions="Fill"
+                   VerticalOptions="Fill" />
+        </Border>
+
+        <!-- Boton Inferior de Cierre -->
+        <Button Grid.Row="2"
+                Text="Cerrar Visualizador"
+                FontSize="14"
+                FontAttributes="Bold"
+                HeightRequest="44"
+                CornerRadius="10"
+                BackgroundColor="{StaticResource Primary}"
+                TextColor="White"
+                Margin="0, 12, 0, 0"
+                Command="{Binding CerrarVisorImagenCommand}" />
+    </Grid>
+</Grid>
+</ContentPage>
+

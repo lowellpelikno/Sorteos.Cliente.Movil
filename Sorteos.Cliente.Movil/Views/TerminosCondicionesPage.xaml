@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Sorteos.Cliente.Movil.ViewModels"
+             x:Class="Sorteos.Cliente.Movil.Views.TerminosCondicionesPage"
+             x:Name="thisPage"
+             x:DataType="vm:TerminosCondicionesViewModel"
+             BackgroundColor="{StaticResource IndigoTint}"
+             Title="{Binding Title}">
+
+    <ScrollView VerticalScrollBarVisibility="Never">
+        <VerticalStackLayout Padding="16,14,16,28" Spacing="16">
+
+            <!-- Encabezado Institucional -->
+            <Border BackgroundColor="White"
+                    Stroke="{StaticResource IndigoBorder}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="16,14">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="TÉRMINOS DE USO Y POLÍTICAS"
+                           FontSize="10"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource IndigoAccent}"
+                           CharacterSpacing="1.2" />
+                    <Label Text="Sorteos Móvil"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource MidnightBlue}" />
+                    <Label Text="Software de gestión local de sorteos y reservas de boletos. Al utilizar esta aplicación, aceptas los lineamientos descritos a continuación."
+                           FontSize="12"
+                           TextColor="{StaticResource Gray600}"
+                           LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Cláusula 1: Naturaleza del Sistema -->
+            <Border BackgroundColor="White"
+                    Stroke="{StaticResource IndigoBorder}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="16,14">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="1. Ámbito de Uso y Operación Local"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource PrimaryDarkText}" />
+                    <Label Text="Sorteos Móvil es una herramienta de administración interna para organizadores de rifas y sorteos. La aplicación opera bajo una arquitectura de persistencia 100% local en el dispositivo (SQLite). No existe sincronización oculta ni retransmisión de datos hacia servidores externos sin tu consentimiento expreso."
+                           FontSize="12"
+                           TextColor="{StaticResource Gray600}"
+                           LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Cláusula 2: Responsabilidad Legal -->
+            <Border BackgroundColor="White"
+                    Stroke="{StaticResource IndigoBorder}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="16,14">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="2. Responsabilidad Legal y Regulatoria"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource PrimaryDarkText}" />
+                    <Label Text="El operador u organizador del sorteo es el único y exclusivo responsable de la veracidad de la información registrada, del cumplimiento de las leyes aplicables en su jurisdicción en materia de juegos y sorteos, así como de la adjudicación, entrega y validez de los premios ofrecidos a los participantes."
+                           FontSize="12"
+                           TextColor="{StaticResource Gray600}"
+                           LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Cláusula 3: Tratamiento y Privacidad de Datos -->
+            <Border BackgroundColor="White"
+                    Stroke="{StaticResource IndigoBorder}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="16,14">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="3. Privacidad y Directorio de Clientes"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource PrimaryDarkText}" />
+                    <Label Text="Los datos personales de clientes (nombres, números telefónicos y notas de apartado) se almacenan exclusivamente en la base de datos local del dispositivo del organizador. El uso de la integración con WhatsApp para enviar notificaciones de apartado o recordatorios de cobro se efectúa directamente a través del cliente oficial de WhatsApp instalado en el teléfono."
+                           FontSize="12"
+                           TextColor="{StaticResource Gray600}"
+                           LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Cláusula 4: Resguardo de Evidencias y Comprobantes -->
+            <Border BackgroundColor="White"
+                    Stroke="{StaticResource IndigoBorder}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="16,14">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="4. Comprobantes de Pago y Auditoría"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource PrimaryDarkText}" />
+                    <Label Text="Las fotografías o capturas de pantalla de comprobantes de pago vinculadas a boletos reservados se guardan en el almacenamiento privado de la aplicación como soporte contable para el organizador. El resguardo físico del dispositivo y la integridad de los archivos son responsabilidad del usuario."
+                           FontSize="12"
+                           TextColor="{StaticResource Gray600}"
+                           LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Sección de Consentimiento (Modo Primer Arranque) -->
+            <Border IsVisible="{Binding EsPrimerArranque}"
+                    BackgroundColor="White"
+                    Stroke="{StaticResource IndigoBorder}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="16,14">
+                <VerticalStackLayout Spacing="6">
+                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="12">
+                        <CheckBox Grid.Column="0"
+                                  IsChecked="{Binding AceptoTerminos}"
+                                  Color="{StaticResource Primary}"
+                                  VerticalOptions="Center" />
+                        <Label Grid.Column="1"
+                               Text="He leído y acepto los términos de uso y condiciones de la aplicación"
+                               FontSize="12"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource MidnightBlue}"
+                               VerticalOptions="Center"
+                               LineBreakMode="WordWrap">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding AlternarAceptoTerminosCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+                    <Label Text="Debes marcar la casilla para confirmar tu conformidad y continuar."
+                           FontSize="10"
+                           TextColor="{StaticResource Gray500}"
+                           Margin="44,0,0,0" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Estado de Aceptación (Modo Consulta) -->
+            <Border IsVisible="{Binding EsConsulta}"
+                    BackgroundColor="#E8EAF6"
+                    Stroke="{StaticResource IndigoBorder}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="16,12">
+                <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                    <Border Grid.Column="0"
+                            BackgroundColor="#2E7D32"
+                            WidthRequest="8"
+                            HeightRequest="8"
+                            StrokeShape="RoundRectangle 4"
+                            StrokeThickness="0"
+                            VerticalOptions="Center" />
+                    <Label Grid.Column="1"
+                           Text="Términos y condiciones aceptados previamente en este dispositivo."
+                           FontSize="11"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource MidnightBlue}"
+                           VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <!-- Botón Modo Primer Arranque -->
+            <Button Text="Aceptar y Continuar"
+                    Command="{Binding AceptarYContinuarCommand}"
+                    IsEnabled="{Binding AceptoTerminos}"
+                    IsVisible="{Binding EsPrimerArranque}"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    CornerRadius="8"
+                    HeightRequest="48"
+                    Margin="0,8,0,0" />
+
+            <!-- Botón Modo Consulta -->
+            <Button Text="Entendido y de Acuerdo"
+                    Command="{Binding VolverCommand}"
+                    IsVisible="{Binding EsConsulta}"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    CornerRadius="8"
+                    HeightRequest="48"
+                    Margin="0,8,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
+

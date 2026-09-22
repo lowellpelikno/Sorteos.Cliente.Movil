@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Sorteos.Cliente.Movil.ViewModels"
+             xmlns:models="clr-namespace:Sorteos.Cliente.Movil.Models"
+             x:Class="Sorteos.Cliente.Movil.Views.ClienteListPage"
+             x:Name="thisPage"
+             x:DataType="vm:ClienteListViewModel"
+             Title="{Binding Title}">
+
+    <Grid RowDefinitions="Auto, Auto, *">       
+
+        <!-- Boton Nuevo Cliente -->
+        <Button Grid.Row="0"
+                Text="+ Nuevo Cliente"
+                Command="{Binding NuevoClienteCommand}"
+                Margin="12,0,12,8"
+                BackgroundColor="{StaticResource Primary}"
+                TextColor="White"
+                FontAttributes="Bold"
+                CornerRadius="8"
+                HeightRequest="44" />
+        
+        <!-- Buscador -->
+        <SearchBar Grid.Row="1"
+           Placeholder="Buscar cliente por nombre o teléfono..."
+           Text="{Binding FiltroTexto}"
+           IsVisible="{Binding TieneClientes}"
+           Margin="12,8" />
+
+        <!-- Indicador de Carga -->
+        <ActivityIndicator Grid.Row="2"
+                           IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+
+        <!-- Lista de Clientes -->
+        <CollectionView Grid.Row="2"
+                        ItemsSource="{Binding Clientes}"
+                        ItemSizingStrategy="MeasureFirstItem"
+                        Margin="12,0"
+                        IsVisible="{Binding IsNotBusy}">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="8" Margin="0,50,0,0">
+                    <Label Text="No hay clientes registrados"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="Gray" />
+                    <Label Text="Agrega nuevos compradores con '+ Nuevo Cliente'."
+                           FontSize="14"
+                           HorizontalOptions="Center"
+                           TextColor="Gray" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Clientes">
+                    <Border StrokeShape="RoundRectangle 8"
+                            Stroke="#E0E0E0"
+                            StrokeThickness="1"
+                            BackgroundColor="White"
+                            Padding="14"
+                            Margin="0,4">
+                        <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto, Auto">
+                            <!-- Nombre Completo -->
+                            <Label Grid.Row="0" Grid.Column="0"
+                                   Text="{Binding NombreCompleto}"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="#212121" />
+
+                            <!-- Telefono y Correo -->
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="2" Margin="0,4,0,0">
+                                <Label Text="{Binding Telefono, StringFormat='Tel: {0}'}"
+                                       FontSize="13"
+                                       TextColor="#424242" />
+                                <Label Text="{Binding Email}"
+                                       FontSize="12"
+                                       TextColor="#757575"
+                                       IsVisible="{Binding Email, Converter={StaticResource StringIsNotNullConverter}}" />
+                            </VerticalStackLayout>
+
+                            <!-- Numeros de Planta (Badge) -->
+                            <Border Grid.Row="2" Grid.Column="0"
+                                    IsVisible="{Binding TieneNumerosPlanta}"
+                                    StrokeShape="RoundRectangle 4"
+                                    Stroke="{StaticResource IndigoBorder}"
+                                    BackgroundColor="{StaticResource Secondary}"
+                                    HorizontalOptions="Start"
+                                    Padding="8,2"
+                                    Margin="0,6,0,0">
+                                <Label Text="{Binding NumerosPlantaResumen, StringFormat='Números de planta: {0}'}"
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource PrimaryDarkText}" />
+                            </Border>
+
+                            <!-- Botones Editar y Eliminar -->
+                            <VerticalStackLayout Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                                <Button Text="Editar"
+                                        Command="{Binding Source={x:Reference thisPage}, Path=BindingContext.EditarClienteCommand}"
+                                        CommandParameter="{Binding .}"
+                                        HeightRequest="36"
+                                        FontSize="12"
+                                        Padding="12,0"
+                                        BackgroundColor="{StaticResource Secondary}"
+                                        TextColor="{StaticResource Primary}"
+                                        CornerRadius="6" />
+
+                                <Button Text="Eliminar"
+                                        Command="{Binding Source={x:Reference thisPage}, Path=BindingContext.EliminarClienteCommand}"
+                                        CommandParameter="{Binding .}"
+                                        HeightRequest="36"
+                                        FontSize="12"
+                                        Padding="12,0"
+                                        BackgroundColor="#FFEBEE"
+                                        TextColor="#C62828"
+                                        CornerRadius="6" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+
+</ContentPage>
+

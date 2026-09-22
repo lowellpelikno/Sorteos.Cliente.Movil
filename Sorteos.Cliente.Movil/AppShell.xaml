@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="Sorteos.Cliente.Movil.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Sorteos.Cliente.Movil"
+    xmlns:views="clr-namespace:Sorteos.Cliente.Movil.Views"
+    Title="Sorteos.Cliente.Movil">
+
+    <TabBar>
+        <Tab Title="Inicio">
+            <ShellContent
+                Title="Home"
+                ContentTemplate="{DataTemplate local:MainPage}"
+                Route="MainPage" />
+        </Tab>
+
+        <Tab Title="Sorteos">
+            <ShellContent
+                Title="Sorteos"
+                ContentTemplate="{DataTemplate views:SorteosSemanaPage}"
+                Route="SorteosSemanaPage" />
+        </Tab>
+
+        <Tab Title="Premios">
+            <ShellContent
+                Title="Premios"
+                ContentTemplate="{DataTemplate views:PremioListPage}"
+                Route="PremioListPage" />
+        </Tab>
+
+        <Tab Title="Clientes">
+            <ShellContent
+                Title="Clientes"
+                ContentTemplate="{DataTemplate views:ClienteListPage}"
+                Route="ClienteListPage" />
+        </Tab>
+    </TabBar>
+
+</Shell>

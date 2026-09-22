@@ -1,0 +1,1038 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:Sorteos.Cliente.Movil.Models"
+             xmlns:vm="clr-namespace:Sorteos.Cliente.Movil.ViewModels"
+             x:Class="Sorteos.Cliente.Movil.Views.ReservasSorteoPage"
+             x:Name="thisPage"
+             x:DataType="vm:ReservasSorteoViewModel"
+             Title="Cuadrícula de Reservas"
+             BackgroundColor="#F4F6F9">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- Fila 0: Búsqueda y Selector de Filtros Rápidos (Píldoras) -->
+        <VerticalStackLayout Grid.Row="0"
+                             Spacing="6"
+                             Margin="12,12,12,6">
+
+            <!-- Campo de Texto para Búsqueda de Número o Cliente -->
+            <Border Padding="10,0"
+                    HeightRequest="42"
+                    StrokeShape="RoundRectangle 8"
+                    Stroke="#C5CAE9"
+                    BackgroundColor="White">
+                <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                    <Entry Grid.Column="0"
+                           Text="{Binding TextoBusqueda}"
+                           Placeholder="Buscar número (ej. 05, 42) o cliente..."
+                           PlaceholderColor="#9E9E9E"
+                           TextColor="#1A237E"
+                           FontSize="13"
+                           Keyboard="Numeric"
+                           ClearButtonVisibility="WhileEditing"
+                           VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <!-- Generador de Números al Azar -->
+            <Border Padding="10,6"
+                    StrokeShape="RoundRectangle 8"
+                    Stroke="#E0E0E0"
+                    BackgroundColor="White"
+                    IsVisible="{Binding PuedeGenerarAlAzar}">
+                <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                    <Label Grid.Column="0"
+                           Text="Elegir al azar:"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="#1A237E"
+                           VerticalOptions="Center" />
+
+                    <HorizontalStackLayout Grid.Column="1"
+                                           Spacing="6"
+                                           VerticalOptions="Center">
+                        <!-- Botón Disminuir (-) -->
+                        <Button Text="-"
+                                FontSize="15"
+                                FontAttributes="Bold"
+                                WidthRequest="32"
+                                HeightRequest="32"
+                                CornerRadius="16"
+                                Padding="0"
+                                BackgroundColor="#ECEFF1"
+                                TextColor="#37474F"
+                                Command="{Binding DisminuirCantidadAzarCommand}" />
+
+                        <!-- Entrada de Cantidad con Helper Sólo Dígitos -->
+                        <Border WidthRequest="55"
+                                HeightRequest="32"
+                                StrokeShape="RoundRectangle 6"
+                                Stroke="#C5CAE9"
+                                BackgroundColor="#FAFAFA"
+                                Padding="4,0">
+                            <Entry Text="{Binding CantidadAzarTexto}"
+                                   Keyboard="Numeric"
+                                   FontSize="13"
+                                   FontAttributes="Bold"
+                                   TextColor="#1A237E"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalOptions="Center"
+                                   ClearButtonVisibility="Never" />
+                        </Border>
+
+                        <!-- Botón Aumentar (+) -->
+                        <Button Text="+"
+                                FontSize="15"
+                                FontAttributes="Bold"
+                                WidthRequest="32"
+                                HeightRequest="32"
+                                CornerRadius="16"
+                                Padding="0"
+                                BackgroundColor="#ECEFF1"
+                                TextColor="#37474F"
+                                Command="{Binding AumentarCantidadAzarCommand}" />
+
+                        <!-- Botón Generar -->
+                        <Button Text="Generar"
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                HeightRequest="32"
+                                CornerRadius="8"
+                                Padding="12,0"
+                                BackgroundColor="#3F51B5"
+                                TextColor="White"
+                                Command="{Binding GenerarAzarCommand}" />
+                    </HorizontalStackLayout>
+                </Grid>
+            </Border>
+
+            <!-- Selector de Filtros Rápidos (Píldoras) -->
+            <ScrollView x:Name="scrollPildoras"
+                        Orientation="Horizontal"
+                        HorizontalScrollBarVisibility="{OnPlatform Default, Android=Never, iOS=Never}"
+                        HeightRequest="{OnPlatform 48, Android=36, iOS=36}">
+                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+
+                    <Button Text="Disponibles"
+                            FontSize="12"
+                            HeightRequest="32"
+                            MinimumHeightRequest="32"
+                            CornerRadius="16"
+                            Padding="14,0"
+                            BackgroundColor="#E0E0E0"
+                            TextColor="#616161"
+                            Command="{Binding CambiarFiltroCommand}"
+                            CommandParameter="Disponibles">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding FiltroActual}" Value="Disponibles">
+                                <Setter Property="BackgroundColor" Value="#3F51B5" />
+                                <Setter Property="TextColor" Value="White" />
+                                <Setter Property="FontAttributes" Value="Bold" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                    <Button Text="Apartados"
+                            FontSize="12"
+                            HeightRequest="32"
+                            MinimumHeightRequest="32"
+                            CornerRadius="16"
+                            Padding="14,0"
+                            BackgroundColor="#E0E0E0"
+                            TextColor="#616161"
+                            Command="{Binding CambiarFiltroCommand}"
+                            CommandParameter="Apartados">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding FiltroActual}" Value="Apartados">
+                                <Setter Property="BackgroundColor" Value="#3F51B5" />
+                                <Setter Property="TextColor" Value="White" />
+                                <Setter Property="FontAttributes" Value="Bold" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                    <Button Text="Pagados"
+                            FontSize="12"
+                            HeightRequest="32"
+                            MinimumHeightRequest="32"
+                            CornerRadius="16"
+                            Padding="14,0"
+                            BackgroundColor="#E0E0E0"
+                            TextColor="#616161"
+                            Command="{Binding CambiarFiltroCommand}"
+                            CommandParameter="Pagados">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding FiltroActual}" Value="Pagados">
+                                <Setter Property="BackgroundColor" Value="#3F51B5" />
+                                <Setter Property="TextColor" Value="White" />
+                                <Setter Property="FontAttributes" Value="Bold" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                    
+
+                    <!-- Píldora de Acción Rápida: Exportar Disponibles -->
+                    <Button Text="Exportar"
+                            FontSize="12"
+                            FontAttributes="Bold"
+                            HeightRequest="32"
+                            MinimumHeightRequest="32"
+                            CornerRadius="16"
+                            Padding="14,0"
+                            BackgroundColor="#E0E0E0"
+                            TextColor="#616161"
+                            BorderWidth="1"
+                            Command="{Binding ExportarDisponiblesCommand}" >
+                        
+                    </Button>
+                </HorizontalStackLayout>
+            </ScrollView>
+
+            <!-- Banner Destacado de Ganadores (Visible si el sorteo tiene ganadores registrados) -->
+            <Border IsVisible="{Binding TieneGanadores}"
+                    BackgroundColor="#1A237E"
+                    Stroke="#C5CAE9"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 8"
+                    Padding="10,6"
+                    Margin="0,2,0,2">
+                <Grid ColumnDefinitions="Auto, *">
+                    <Border Grid.Column="0"
+                            BackgroundColor="#E8EAF6"
+                            Padding="6,2"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 4"
+                            Margin="0,0,8,0">
+                        <Label Text="GANADOR"
+                               FontSize="11"
+                               FontAttributes="Bold"
+                               TextColor="#1A237E" />
+                    </Border>
+                    <Label Grid.Column="1"
+                           Text="{Binding ResumenGanadoresTexto}"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="White"
+                           LineBreakMode="TailTruncation"
+                           VerticalOptions="Center" />
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
+
+        <!-- Fila 1: Cuadrícula con Carga Diferida (Lazy Loading) -->
+        <Grid Grid.Row="1">
+            <!-- Cuadricula de numeros — visible para todos los filtros excepto Apartados -->
+            <CollectionView ItemsSource="{Binding NumerosVisibles}"
+                            IsVisible="{Binding EsVistaNumeros}"
+                            ItemSizingStrategy="MeasureFirstItem"
+                            RemainingItemsThreshold="15"
+                            RemainingItemsThresholdReachedCommand="{Binding CargarMasNumerosCommand}"
+                            Margin="10,0">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical"
+                                     Span="{Binding ColumnasCuadricula}"
+                                     HorizontalItemSpacing="6"
+                                     VerticalItemSpacing="6" />
+                </CollectionView.ItemsLayout>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:NumeroGridItem">
+                        <Border Padding="4,2"
+                                HeightRequest="58"
+                                StrokeShape="RoundRectangle 8"
+                                Stroke="{Binding BorderColor}"
+                                StrokeThickness="1.5"
+                                BackgroundColor="{Binding BackgroundColor}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={x:Reference thisPage}, Path=BindingContext.SeleccionarNumeroCommand}"
+                                                      CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+
+                            <Grid RowDefinitions="*,Auto" VerticalOptions="Center">
+                                <Label Grid.Row="0"
+                                       Text="{Binding NumeroFormateado}"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="{Binding TextColor}"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+
+                                <Label Grid.Row="1"
+                                       Text="{Binding BadgeTexto}"
+                                       FontSize="8"
+                                       TextColor="#E65100"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center"
+                                       Margin="0,0,0,2" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10" Margin="20">
+                        <Label Text="No se encontraron números con el filtro seleccionado."
+                               FontSize="14"
+                               TextColor="#757575"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+            </CollectionView>
+
+            <!-- Vista de clientes con numeros apartados — visible solo en filtro Apartados -->
+            <Grid IsVisible="{Binding EsVistaApartados}" RowDefinitions="Auto,*,Auto">
+                <!-- Barra Superior de Control de Seleccion en Apartados -->
+                <Grid Grid.Row="0"
+                      ColumnDefinitions="*,Auto"
+                      Margin="10,4,10,4"
+                      VerticalOptions="Center">
+                    <Button Grid.Column="0"
+                            Text="Seleccionar todos (Efectivo)"
+                            FontSize="11"
+                            FontAttributes="Bold"
+                            HeightRequest="30"
+                            Padding="12,0"
+                            CornerRadius="6"
+                            BackgroundColor="#E8EAF6"
+                            TextColor="#1A237E"
+                            HorizontalOptions="Start"
+                            Command="{Binding AlternarSeleccionTodosApartadosCommand}" />
+
+                    <Button Grid.Column="1"
+                            Text="Limpiar"
+                            FontSize="11"
+                            FontAttributes="Bold"
+                            HeightRequest="30"
+                            Padding="12,0"
+                            CornerRadius="6"
+                            BackgroundColor="#FFEBEE"
+                            TextColor="#C62828"
+                            IsVisible="{Binding TieneApartadosSeleccionados}"
+                            Command="{Binding LimpiarSeleccionApartadosCommand}" />
+                </Grid>
+
+                <!-- Lista de Clientes con Apartados -->
+                <CollectionView Grid.Row="1"
+                                ItemsSource="{Binding ClientesConApartados}"
+                                Margin="10,0">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:ClienteConApartadosDto">
+                            <Border Margin="0,6"
+                                    Padding="10,8"
+                                    StrokeShape="RoundRectangle 10"
+                                    Stroke="#C5CAE9"
+                                    BackgroundColor="#E8EAF6">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference thisPage}, Path=BindingContext.GestionarReservaCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8">
+                                    <!-- Casilla de Seleccion para Cobro Masivo (Visible si no tiene comprobante) -->
+                                    <CheckBox Grid.Column="0"
+                                              IsChecked="{Binding EstaSeleccionado, Mode=TwoWay}"
+                                              IsVisible="{Binding NoTieneComprobante}"
+                                              Color="#2E7D32"
+                                              VerticalOptions="Center"
+                                              Margin="0,0,2,0" />
+
+                                    <!-- Indicador de Comprobante Adjunto (Visible si SI tiene comprobante) -->
+                                    <Border Grid.Column="0"
+                                            IsVisible="{Binding TieneComprobante}"
+                                            WidthRequest="32"
+                                            HeightRequest="32"
+                                            StrokeShape="RoundRectangle 6"
+                                            Stroke="#3F51B5"
+                                            BackgroundColor="#C5CAE9"
+                                            VerticalOptions="Center"
+                                            Margin="0,0,2,0"
+                                            Padding="2">
+                                        <Image Source="{Binding ComprobanteUrl}"
+                                               Aspect="AspectFill" />
+                                    </Border>
+
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                        <Label Text="{Binding NombreCliente}"
+                                               FontSize="14"
+                                               FontAttributes="Bold"
+                                               TextColor="#1A237E"
+                                               LineBreakMode="TailTruncation" />
+                                        <Label Text="{Binding NumerosTexto}"
+                                               FontSize="12"
+                                               TextColor="#5C6BC0" />
+                                    </VerticalStackLayout>
+
+                                    <Border Grid.Column="2"
+                                            Padding="8,4"
+                                            StrokeShape="RoundRectangle 6"
+                                            Stroke="#9FA8DA"
+                                            BackgroundColor="White"
+                                            VerticalOptions="Center">
+                                        <Label Text="{Binding TotalNumeros, StringFormat='{0} núm.'}"
+                                               FontSize="11"
+                                               FontAttributes="Bold"
+                                               TextColor="#3F51B5" />
+                                    </Border>
+
+                                    <Label Grid.Column="3"
+                                           Text="›"
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           TextColor="#9FA8DA"
+                                           VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10" Margin="20">
+                            <Label Text="No hay números apartados en este sorteo."
+                                   FontSize="14"
+                                   TextColor="#757575"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                </CollectionView>
+
+                <!-- Barra Flotante Inferior de Accion Masiva: Cobro en Efectivo -->
+                <Border Grid.Row="2"
+                        IsVisible="{Binding TieneApartadosSeleccionados}"
+                        Margin="10,6,10,8"
+                        Padding="14,10"
+                        StrokeShape="RoundRectangle 12"
+                        Stroke="#2E7D32"
+                        StrokeThickness="1.5"
+                        BackgroundColor="#E8F5E9">
+                    <Border.Shadow>
+                        <Shadow Brush="#000000" Opacity="0.15" Radius="8" Offset="0,-2" />
+                    </Border.Shadow>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" VerticalOptions="Center">
+                        <VerticalStackLayout Grid.Column="0" VerticalOptions="Center" Spacing="2">
+                            <Label Text="{Binding TotalSeleccionadosTexto}"
+                                   FontSize="13"
+                                   FontAttributes="Bold"
+                                   TextColor="#1B5E20" />
+                            <Label Text="Pago directo en efectivo"
+                                   FontSize="11"
+                                   TextColor="#388E3C" />
+                        </VerticalStackLayout>
+                        <Button Grid.Column="1"
+                                Text="Pagar en Efectivo"
+                                FontSize="13"
+                                FontAttributes="Bold"
+                                HeightRequest="38"
+                                Padding="16,0"
+                                CornerRadius="8"
+                                BackgroundColor="#2E7D32"
+                                TextColor="White"
+                                Command="{Binding PagarSeleccionadosEfectivoCommand}" />
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Lista de clientes con numeros pagados — visible solo en filtro Pagados -->
+            <CollectionView ItemsSource="{Binding ClientesPagados}"
+                            IsVisible="{Binding EsVistaPagados}"
+                            Margin="10,6">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:ClienteConApartadosDto">
+                        <Border Margin="0,6"
+                                Padding="14,10"
+                                StrokeShape="RoundRectangle 10"
+                                Stroke="#C5CAE9"
+                                BackgroundColor="White">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding EsGanador}" Value="True">
+                                    <Setter Property="Stroke" Value="#3F51B5" />
+                                    <Setter Property="StrokeThickness" Value="2" />
+                                    <Setter Property="BackgroundColor" Value="#F4F5FB" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={x:Reference thisPage}, Path=BindingContext.GestionarReservaCommand}"
+                                                      CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="8">
+                                <!-- Leyenda Grande y Clara para Ganador en la lista de Pagados -->
+                                <Border IsVisible="{Binding EsGanador}"
+                                        BackgroundColor="#1A237E"
+                                        StrokeShape="RoundRectangle 6"
+                                        Padding="10,6">
+                                    <Grid ColumnDefinitions="Auto, *">
+                                        <Border Grid.Column="0"
+                                                BackgroundColor="#E8EAF6"
+                                                Padding="6,2"
+                                                StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 4"
+                                                Margin="0,0,8,0">
+                                            <Label Text="GANADOR"
+                                                   FontSize="11"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#1A237E" />
+                                        </Border>
+                                        <Label Grid.Column="1"
+                                               Text="{Binding LeyendaGanador}"
+                                               FontSize="13"
+                                               FontAttributes="Bold"
+                                               TextColor="White"
+                                               VerticalOptions="Center" />
+                                    </Grid>
+                                </Border>
+
+                                <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8">
+                                <!-- Columna 0: Miniatura o Boton para subir comprobante -->
+                                <Grid Grid.Column="0"
+                                      WidthRequest="42"
+                                      HeightRequest="42"
+                                      VerticalOptions="Center"
+                                      Margin="0,0,2,0">
+                                    <!-- Miniatura cuando SI tiene comprobante -->
+                                    <Border IsVisible="{Binding TieneComprobante}"
+                                            WidthRequest="42"
+                                            HeightRequest="42"
+                                            StrokeShape="RoundRectangle 8"
+                                            Stroke="#3F51B5"
+                                            StrokeThickness="1"
+                                            BackgroundColor="#E8EAF6">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={x:Reference thisPage}, Path=BindingContext.VerComprobanteCommand}"
+                                                                  CommandParameter="{Binding ComprobanteUrl}" />
+                                        </Border.GestureRecognizers>
+                                        <Image Source="{Binding ComprobanteUrl}"
+                                               Aspect="AspectFill"
+                                               WidthRequest="42"
+                                               HeightRequest="42" />
+                                    </Border>
+
+                                    <!-- Boton para subir comprobante cuando NO tiene comprobante -->
+                                    <Border WidthRequest="42"
+                                            HeightRequest="42"
+                                            StrokeShape="RoundRectangle 8"
+                                            Stroke="#9FA8DA"
+                                            StrokeThickness="1"
+                                            StrokeDashArray="2,2"
+                                            BackgroundColor="#F5F5F5">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding TieneComprobante}" Value="True">
+                                                <Setter Property="IsVisible" Value="False" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={x:Reference thisPage}, Path=BindingContext.SubirComprobanteCommand}"
+                                                                  CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                        <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="0">
+                                            <Label Text="+"
+                                                   FontSize="16"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#3F51B5"
+                                                   HorizontalOptions="Center" />
+                                            <Label Text="Foto"
+                                                   FontSize="8"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#5C6BC0"
+                                                   HorizontalOptions="Center" />
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </Grid>
+
+                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                    <Label Text="{Binding NombreCliente}"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           TextColor="#1A237E"
+                                           LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding NumerosTexto}"
+                                           FontSize="12"
+                                           TextColor="#5C6BC0" />
+                                    <HorizontalStackLayout Spacing="4" Margin="0,2,0,0">
+                                        <Border Padding="6,1"
+                                                StrokeShape="RoundRectangle 4"
+                                                Stroke="#C5CAE9"
+                                                BackgroundColor="#F5F5F5">
+                                            <Label Text="{Binding FormaDePago}"
+                                                   FontSize="10"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#303F9F" />
+                                        </Border>
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+
+                                <Border Grid.Column="2"
+                                        Padding="8,4"
+                                        StrokeShape="RoundRectangle 6"
+                                        Stroke="#7986CB"
+                                        BackgroundColor="#E8EAF6"
+                                        VerticalOptions="Center">
+                                    <Label Text="{Binding TotalNumeros, StringFormat='{0} núm.'}"
+                                           FontSize="11"
+                                           FontAttributes="Bold"
+                                           TextColor="#283593" />
+                                </Border>
+                                <Label Grid.Column="3"
+                                       Text="›"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#7986CB"
+                                       VerticalOptions="Center" />
+                            </Grid>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10" Margin="20">
+                        <Label Text="No hay números pagados en este sorteo."
+                               FontSize="14"
+                               TextColor="#757575"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+            </CollectionView>
+
+            <!-- Indicador de Carga Inicial -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               Color="#3F51B5"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               WidthRequest="40"
+                               HeightRequest="40" />
+        </Grid>
+
+        <!-- Fila 2: Panel Inferior Desplegable del Número Seleccionado -->
+        <Border Grid.Row="2"
+                IsVisible="{Binding TieneNumeroSeleccionado}"
+                Margin="12,6,12,12"
+                Padding="14"
+                StrokeShape="RoundRectangle 14"
+                Stroke="#3F51B5"
+                StrokeThickness="1.5"
+                BackgroundColor="White">
+            <Border.Shadow>
+                <Shadow Brush="#000000" Opacity="0.12" Radius="10" Offset="0,-3" />
+            </Border.Shadow>
+
+            <VerticalStackLayout Spacing="10">
+                <!-- Chips de Numeros Seleccionados + Boton Cerrar -->
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <ScrollView Grid.Column="0"
+                                Orientation="Horizontal"
+                                HorizontalScrollBarVisibility="Never"
+                                HeightRequest="36">
+                        <HorizontalStackLayout Spacing="6"
+                                               VerticalOptions="Center"
+                                               BindableLayout.ItemsSource="{Binding NumerosEnSeleccion}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:NumeroGridItem">
+                                    <Border Padding="10,6"
+                                            StrokeShape="RoundRectangle 14"
+                                            Stroke="#9FA8DA"
+                                            BackgroundColor="#E8EAF6"
+                                            VerticalOptions="Center">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={x:Reference thisPage}, Path=BindingContext.QuitarDeSeleccionCommand}"
+                                                                  CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                        <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                            <Label Text="{Binding NumeroFormateado}"
+                                                   FontSize="13"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#1A237E"
+                                                   VerticalOptions="Center" />
+                                            <Label Text="×"
+                                                   FontSize="14"
+                                                   TextColor="#7986CB"
+                                                   VerticalOptions="Center" />
+                                        </HorizontalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </HorizontalStackLayout>
+                    </ScrollView>
+
+                    <Button Grid.Column="1"
+                            Text="✕"
+                            FontSize="14"
+                            WidthRequest="32"
+                            HeightRequest="32"
+                            CornerRadius="16"
+                            Padding="0"
+                            BackgroundColor="#ECEFF1"
+                            TextColor="#455A64"
+                            Command="{Binding CerrarDetalleCommand}"
+                            VerticalOptions="Center" />
+                </Grid>
+
+                <!-- Estado y Cliente -->
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="{Binding DetalleEstadoTexto}"
+                           FontSize="12"
+                           TextColor="#5C6BC0" />
+                    <Label Text="{Binding DetalleClienteTexto}"
+                           FontSize="12"
+                           FontAttributes="Italic"
+                           TextColor="#424242" />
+                </VerticalStackLayout>
+
+
+                <!-- Acción Principal -->
+                <Button Text="{Binding TextoBotonApartar}"
+                        FontSize="14"
+                        FontAttributes="Bold"
+                        HeightRequest="42"
+                        CornerRadius="10"
+                        BackgroundColor="#FBC02D"
+                        TextColor="#212121"
+                        IsEnabled="{Binding PuedeApartarSeleccionado}"
+                        IsVisible="{Binding PuedeApartarSeleccionado}"
+                        Command="{Binding ApartarSeleccionadoCommand}" />
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- Modal Overlay: Formulario de Apartado con Opcion de Comprobante -->
+        <Grid Grid.Row="0"
+              Grid.RowSpan="3"
+              ZIndex="998"
+              IsVisible="{Binding MostrarModalApartado}"
+              BackgroundColor="#B3000000"
+              Padding="20">
+            <Border StrokeShape="RoundRectangle 16"
+                    Stroke="#C5CAE9"
+                    BackgroundColor="White"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center"
+                    MaximumWidthRequest="420"
+                    Padding="20">
+                <Border.Shadow>
+                    <Shadow Brush="#000000" Opacity="0.25" Radius="16" Offset="0,4" />
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="16">
+                    <!-- Encabezado del Formulario -->
+                    <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="Apartar Boletos"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="#1A237E" />
+                            <Label Text="{Binding ResumenNumerosApartado}"
+                                   FontSize="12"
+                                   TextColor="#5C6BC0" />
+                        </VerticalStackLayout>
+                        <Button Grid.Column="1"
+                                Text="✕"
+                                FontSize="14"
+                                WidthRequest="32"
+                                HeightRequest="32"
+                                CornerRadius="16"
+                                Padding="0"
+                                BackgroundColor="#ECEFF1"
+                                TextColor="#546E7A"
+                                Command="{Binding CerrarModalApartadoCommand}" />
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="#EEEEEE" />
+
+                    <!-- Campo: Nombre del Cliente -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Nombre del Cliente *"
+                               FontSize="12"
+                               FontAttributes="Bold"
+                               TextColor="#37474F" />
+                        <Border HeightRequest="44"
+                                StrokeShape="RoundRectangle 8"
+                                Stroke="#C5CAE9"
+                                BackgroundColor="#FAFAFA"
+                                Padding="12,0">
+                            <Entry Text="{Binding NombreClienteApartado}"
+                                   Placeholder="Ingresa el nombre del cliente..."
+                                   PlaceholderColor="#9E9E9E"
+                                   TextColor="#1A237E"
+                                   FontSize="14"
+                                   ClearButtonVisibility="WhileEditing"
+                                   VerticalOptions="Center" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Seccion: Comprobante de Pago (Opcional) -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Comprobante de Pago (Opcional)"
+                               FontSize="12"
+                               FontAttributes="Bold"
+                               TextColor="#37474F" />
+
+                        <!-- Caso Sin Comprobante: Boton para adjuntar foto -->
+                        <Border StrokeShape="RoundRectangle 8"
+                                Stroke="#9FA8DA"
+                                StrokeDashArray="3,2"
+                                BackgroundColor="#F5F5FA"
+                                Padding="12"
+                                IsVisible="{Binding NoTieneComprobanteApartado}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding AdjuntarComprobanteApartadoCommand}" />
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Border WidthRequest="36"
+                                        HeightRequest="36"
+                                        StrokeShape="RoundRectangle 18"
+                                        BackgroundColor="#E8EAF6"
+                                        Stroke="#C5CAE9">
+                                    <Label Text="+"
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           TextColor="#3F51B5"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
+                                </Border>
+                                <VerticalStackLayout Spacing="1" VerticalOptions="Center">
+                                    <Label Text="Subir o tomar foto del comprobante"
+                                           FontSize="13"
+                                           FontAttributes="Bold"
+                                           TextColor="#3F51B5" />
+                                    <Label Text="Si adjuntas foto, se guardará como Pagado"
+                                           FontSize="11"
+                                           TextColor="#757575" />
+                                </VerticalStackLayout>
+                            </HorizontalStackLayout>
+                        </Border>
+
+                        <!-- Caso Con Comprobante: Miniatura y datos -->
+                        <Border StrokeShape="RoundRectangle 8"
+                                Stroke="#4CAF50"
+                                BackgroundColor="#E8F5E9"
+                                Padding="10"
+                                IsVisible="{Binding TieneComprobanteApartado}">
+                            <Grid ColumnDefinitions="50,*,Auto" ColumnSpacing="10" VerticalOptions="Center">
+                                <Border Grid.Column="0"
+                                        WidthRequest="46"
+                                        HeightRequest="46"
+                                        StrokeShape="RoundRectangle 6"
+                                        Stroke="#A5D6A7"
+                                        BackgroundColor="#FFFFFF"
+                                        Padding="2">
+                                    <Image Source="{Binding RutaComprobanteApartado}"
+                                           Aspect="AspectFill" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                    <Label Text="Comprobante adjuntado"
+                                           FontSize="13"
+                                           FontAttributes="Bold"
+                                           TextColor="#2E7D32" />
+                                    <Label Text="Se registrará como Pagado (Transferencia)"
+                                           FontSize="11"
+                                           TextColor="#388E3C" />
+                                </VerticalStackLayout>
+                                <Button Grid.Column="2"
+                                        Text="Quitar"
+                                        FontSize="11"
+                                        HeightRequest="32"
+                                        Padding="10,0"
+                                        CornerRadius="6"
+                                        BackgroundColor="#FFEBEE"
+                                        TextColor="#C62828"
+                                        Command="{Binding QuitarComprobanteApartadoCommand}" />
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Botones de Accion Inferior -->
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,8,0,0">
+                        <Button Grid.Column="0"
+                                Text="Cancelar"
+                                FontSize="13"
+                                FontAttributes="Bold"
+                                HeightRequest="40"
+                                CornerRadius="8"
+                                BackgroundColor="#EEEEEE"
+                                TextColor="#424242"
+                                Command="{Binding CerrarModalApartadoCommand}" />
+
+                        <Button Grid.Column="1"
+                                Text="Confirmar"
+                                FontSize="13"
+                                FontAttributes="Bold"
+                                HeightRequest="40"
+                                CornerRadius="8"
+                                BackgroundColor="#3F51B5"
+                                TextColor="White"
+                                Command="{Binding ConfirmarApartadoCommand}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- Modal Overlay: Visor de Comprobante a Pantalla Completa -->
+        <Grid Grid.Row="0"
+              Grid.RowSpan="3"
+              ZIndex="999"
+              IsVisible="{Binding MostrarVisorComprobante}"
+              BackgroundColor="#D9000000"
+              RowDefinitions="Auto,*,Auto"
+              Padding="16,24">
+            <!-- Barra Superior del Visor -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+                <Label Grid.Column="0"
+                       Text="{Binding TituloComprobanteVisor}"
+                       FontSize="16"
+                       FontAttributes="Bold"
+                       TextColor="White"
+                       VerticalOptions="Center" />
+                <Button Grid.Column="1"
+                        Text="Cerrar"
+                        FontSize="13"
+                        FontAttributes="Bold"
+                        HeightRequest="36"
+                        CornerRadius="8"
+                        Padding="14,0"
+                        BackgroundColor="#424242"
+                        TextColor="White"
+                        Command="{Binding CerrarVisorComprobanteCommand}" />
+            </Grid>
+
+            <!-- Imagen del Comprobante -->
+            <Border Grid.Row="1"
+                    StrokeShape="RoundRectangle 12"
+                    Stroke="#37474F"
+                    BackgroundColor="#121212"
+                    Padding="4">
+                <Image Source="{Binding ImagenComprobanteVisor}"
+                       Aspect="AspectFit"
+                       HorizontalOptions="Fill"
+                       VerticalOptions="Fill" />
+            </Border>
+
+            <!-- Boton Inferior de Cierre -->
+            <Button Grid.Row="2"
+                    Text="Cerrar Visualizador"
+                    FontSize="14"
+                    FontAttributes="Bold"
+                    HeightRequest="44"
+                    CornerRadius="10"
+                    BackgroundColor="#3F51B5"
+                    TextColor="White"
+                    Margin="0,12,0,0"
+                    Command="{Binding CerrarVisorComprobanteCommand}" />
+        </Grid>
+
+        <!-- Modal Overlay: Flyer del Sorteo para Exportacion -->
+        <Grid Grid.Row="0"
+              Grid.RowSpan="3"
+              ZIndex="997"
+              IsVisible="{Binding MostrarModalFlyer}"
+              BackgroundColor="#CC000000"
+              Padding="16,20">
+            <Border StrokeShape="RoundRectangle 16"
+                    Stroke="#C5CAE9"
+                    BackgroundColor="#F5F5F5"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center"
+                    MaximumWidthRequest="440"
+                    Padding="14">
+                <Border.Shadow>
+                    <Shadow Brush="#000000" Opacity="0.3" Radius="16" Offset="0,4" />
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="12">
+                    <!-- Encabezado del Modal -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0"
+                               Text="Flyer del Sorteo"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="#1A237E"
+                               VerticalOptions="Center" />
+                        <Button Grid.Column="1"
+                                Text="✕"
+                                FontSize="14"
+                                WidthRequest="32"
+                                HeightRequest="32"
+                                CornerRadius="16"
+                                Padding="0"
+                                BackgroundColor="#ECEFF1"
+                                TextColor="#455A64"
+                                Command="{Binding CerrarModalFlyerCommand}"
+                                VerticalOptions="Center" />
+                    </Grid>
+
+                    <!-- Tarjeta para Captura Grafica -->
+                    <ScrollView MaximumHeightRequest="480">
+                        <Border x:Name="tarjetaFlyer"
+                                StrokeThickness="0"
+                                BackgroundColor="White"
+                                Padding="0"
+                                WidthRequest="320"
+                                HorizontalOptions="Center">
+                            <VerticalStackLayout Spacing="8" WidthRequest="320">
+                                <!-- Imagen del Sorteo subida por el usuario -->
+                                <Image Source="{Binding SorteoActual.RutaImagen}"
+                                       Aspect="AspectFit"
+                                       WidthRequest="320"
+                                       HorizontalOptions="Fill" />
+
+                                <!-- Etiqueta de seccion Disponibles -->
+                                <Label Text="Disponibles:"
+                                       FontSize="13"
+                                       FontAttributes="Bold"
+                                       TextColor="#000000"
+                                       WidthRequest="320"
+                                       Padding="4,4,4,0"
+                                       HorizontalOptions="Fill"
+                                       HorizontalTextAlignment="Start" />
+
+                                <!-- Listado de Numeros en Texto Plano al pie de la imagen -->
+                                <Label Text="{Binding TextoDisponiblesFlyer}"
+                                       FontSize="12"
+                                       TextColor="#000000"
+                                       LineBreakMode="WordWrap"
+                                       WidthRequest="320"
+                                       Padding="4,2,4,10"
+                                       HorizontalOptions="Fill"
+                                       HorizontalTextAlignment="Start" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </ScrollView>
+
+                    <!-- Acciones del Modal -->
+                    <Grid ColumnDefinitions="Auto,*,*" ColumnSpacing="8">
+                        <Button Grid.Column="0"
+                                Text="Cerrar"
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                HeightRequest="40"
+                                CornerRadius="8"
+                                Padding="12,0"
+                                BackgroundColor="#EEEEEE"
+                                TextColor="#424242"
+                                Command="{Binding CerrarModalFlyerCommand}" />
+
+                        <Button Grid.Column="1"
+                                Text="Descargar"
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                HeightRequest="40"
+                                CornerRadius="8"
+                                Padding="8,0"
+                                BackgroundColor="#1565C0"
+                                TextColor="White"
+                                Command="{Binding DescargarFlyerCommand}" />
+
+                        <Button Grid.Column="2"
+                                Text="Compartir"
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                HeightRequest="40"
+                                CornerRadius="8"
+                                Padding="8,0"
+                                BackgroundColor="#2E7D32"
+                                TextColor="White"
+                                Command="{Binding CompartirFlyerCommand}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+    </Grid>
+
+</ContentPage>
+

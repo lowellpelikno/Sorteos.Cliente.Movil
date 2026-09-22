@@ -1,0 +1,64 @@
+# ==============================================================================
+# Git Ignore - Sorteos.Cliente.Movil
+# ==============================================================================
+
+# Compilacion y Ensamblados
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+
+# Archivos de Configuracion y Cache de IDE (Visual Studio / VS Code / Rider)
+.vs/
+.vscode/
+.idea/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.userprefs
+*.rsuser
+
+# Logs y Diagnosticos
+*.log
+build.log
+
+# Bases de Datos Locales y Archivos Temporales
+*.db
+*.db3
+*.db3-shm
+*.db3-wal
+*.sqlite
+*.sqlite3
+
+# Paquetes y Distribuciones Nativas
+*.apk
+*.aab
+*.ipa
+*.msix
+*.appx
+*.appxbundle
+*.msixbundle
+
+# Archivos de Paquetes NuGet
+*.nupkg
+*.snupkg
+packages/
+
+# Archivos del Sistema Operativo
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# ==============================================================================
+# Documentacion Interna y Configuraciones de Asistente (Exclusivas de Desarrollo)
+# ==============================================================================
+docs/
+.agents/
+AGENTS.md
+GEMINI.md
+*.md
+
+# Excepcion: Unicamente permitir el README principal del proyecto
+!README.md
+

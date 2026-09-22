@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Sorteos.Cliente.Movil.ViewModels"
+             x:Class="Sorteos.Cliente.Movil.Views.PremioPage"
+             x:Name="thisPage"
+             x:DataType="vm:PremioViewModel"
+             Title="{Binding Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <!-- Tarjeta de Campos -->
+            <Border StrokeShape="RoundRectangle 8"
+                    Stroke="#E0E0E0"
+                    StrokeThickness="1"
+                    BackgroundColor="White"
+                    Padding="16">
+                <VerticalStackLayout Spacing="16">
+                    <!-- Lugar -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Lugar o Posición (ej. 1 para 1er Lugar):"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#333333" />
+                        <Entry Text="{Binding Lugar}"
+                               Keyboard="Numeric"
+                               Placeholder="1" />
+                    </VerticalStackLayout>
+
+                    <!-- Tipo de Premio (Selector de Segmentos / Pildora) -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Tipo de Premio:"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#333333" />
+                        <Border StrokeShape="RoundRectangle 8"
+                                Stroke="#E0E0E0"
+                                StrokeThickness="1"
+                                BackgroundColor="#F5F5F5"
+                                Padding="2">
+                            <Grid ColumnDefinitions="*, *" ColumnSpacing="2">
+                                <Button Grid.Column="0"
+                                        Text="Dinero / Efectivo"
+                                        Command="{Binding Source={x:Reference thisPage}, Path=BindingContext.SeleccionarTipoPremioCommand}"
+                                        CommandParameter="Monetario"
+                                        HeightRequest="40"
+                                        FontSize="13"
+                                        FontAttributes="Bold"
+                                        CornerRadius="6">
+                                    <Button.Triggers>
+                                        <DataTrigger TargetType="Button" Binding="{Binding EsMonetario}" Value="True">
+                                            <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                                            <Setter Property="TextColor" Value="White" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Button" Binding="{Binding EsMonetario}" Value="False">
+                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                            <Setter Property="TextColor" Value="#616161" />
+                                        </DataTrigger>
+                                    </Button.Triggers>
+                                </Button>
+
+                                <Button Grid.Column="1"
+                                        Text="Artículo / Especie"
+                                        Command="{Binding Source={x:Reference thisPage}, Path=BindingContext.SeleccionarTipoPremioCommand}"
+                                        CommandParameter="Especie"
+                                        HeightRequest="40"
+                                        FontSize="13"
+                                        FontAttributes="Bold"
+                                        CornerRadius="6">
+                                    <Button.Triggers>
+                                        <DataTrigger TargetType="Button" Binding="{Binding EsMonetario}" Value="False">
+                                            <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                                            <Setter Property="TextColor" Value="White" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Button" Binding="{Binding EsMonetario}" Value="True">
+                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                            <Setter Property="TextColor" Value="#616161" />
+                                        </DataTrigger>
+                                    </Button.Triggers>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Monto o Descripcion del Premio (Reactivo) -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="{Binding EtiquetaDescripcion}"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#333333" />
+                        <Entry Text="{Binding DescripcionPremio}"
+                               Keyboard="{Binding TecladoDescripcion}"
+                               Placeholder="{Binding PlaceholderDescripcion}" />
+                    </VerticalStackLayout>
+
+                    <!-- Descripcion Larga -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Descripción adicional (opcional):"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#333333" />
+                        <Editor Text="{Binding DescripcionLarga}"
+                                Placeholder="Ej. Especificaciones, color, condiciones de entrega..."
+                                HeightRequest="80" />
+                    </VerticalStackLayout>
+
+                    <!-- Activo Switch -->
+                    <Grid ColumnDefinitions="*, Auto" Margin="0,4,0,0">
+                        <Label Grid.Column="0"
+                               Text="Premio Activo"
+                               VerticalOptions="Center"
+                               FontSize="14"
+                               FontAttributes="Bold" />
+                        <Switch Grid.Column="1"
+                                IsToggled="{Binding Activo}"
+                                HorizontalOptions="End" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Botones de Accion -->
+            <Grid ColumnDefinitions="*, *" ColumnSpacing="12" Margin="0,12,0,0">
+                <Button Grid.Column="0"
+                        Text="Cancelar"
+                        Command="{Binding CancelarCommand}"
+                        BackgroundColor="#EEEEEE"
+                        TextColor="#424242"
+                        FontAttributes="Bold"
+                        CornerRadius="8"
+                        HeightRequest="46" />
+
+                <Button Grid.Column="1"
+                        Text="Guardar"
+                        Command="{Binding GuardarCommand}"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        CornerRadius="8"
+                        HeightRequest="46" />
+            </Grid>
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               HorizontalOptions="Center" />
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
+
