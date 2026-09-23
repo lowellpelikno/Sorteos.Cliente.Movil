@@ -5,6 +5,10 @@ using Xunit;
 
 namespace Sorteos.Cliente.Movil.Tests
 {
+/// <summary>
+    /// Pruebas unitarias y de integracion para <see cref="MainViewModel"/>,
+    /// verificando el calculo de metricas ejecutivas, proyecciones financieras y deteccion de sorteo destacado.
+    /// </summary>
     public class MainViewModelTests : IAsyncLifetime
     {
         private readonly string _dbPath;

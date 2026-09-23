@@ -6,8 +6,17 @@ using Sorteos.Cliente.Movil.Views;
 
 namespace Sorteos.Cliente.Movil
 {
+/// <summary>
+    /// Punto de entrada y configuracion de arranque de la aplicacion .NET MAUI.
+    /// Registra la infraestructura de inyeccion de dependencias, servicios, modelos de vista y vistas.
+    /// </summary>
     public static class MauiProgram
     {
+        /// <summary>
+        /// Inicializa el host de la aplicacion MAUI, configurando fuentes, librerias de soporte (CommunityToolkit, SQLite)
+        /// y el contenedor de inyeccion de dependencias (Singleton para servicios, Transient para Vistas y ViewModels).
+        /// </summary>
+        /// <returns>Instancia construida de <see cref="MauiApp"/>.</returns>
         public static MauiApp CreateMauiApp()
         {
             SQLitePCL.Batteries_V2.Init();

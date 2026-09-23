@@ -1,9 +1,13 @@
 namespace Sorteos.Cliente.Movil.Services
 {
+    /// <summary>
+    /// Implementacion concreta para la captura y administracion de artes graficos y portadas de sorteos.
+    /// </summary>
     public class SorteoImagenStorageService : ISorteoImagenStorageService
     {
         private const string CarpetaImagenesSorteos = "imagenes_sorteos";
 
+        /// <inheritdoc/>
         public async Task<string?> CapturarOSeleccionarImagenSorteoAsync()
         {
             try
@@ -86,6 +90,7 @@ namespace Sorteos.Cliente.Movil.Services
             }
         }
 
+        /// <inheritdoc/>
         public async Task<string?> GuardarArchivoImagenSorteoAsync(FileResult archivo)
         {
             try
@@ -129,6 +134,7 @@ namespace Sorteos.Cliente.Movil.Services
             }
         }
 
+        /// <inheritdoc/>
         public void EliminarImagenSorteo(string? ruta)
         {
             if (string.IsNullOrWhiteSpace(ruta)) return;

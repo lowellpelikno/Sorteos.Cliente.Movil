@@ -4,6 +4,10 @@ using Xunit;
 
 namespace Sorteos.Cliente.Movil.Tests
 {
+/// <summary>
+    /// Pruebas unitarias para <see cref="AsignacionNumerosPlantaService"/>,
+    /// verificando algoritmos de generacion de combos teoricos, agrupamiento matematico y asignacion de numeros de planta.
+    /// </summary>
     public class AsignacionNumerosPlantaServiceTests
     {
         private readonly AsignacionNumerosPlantaService _service = new();

@@ -2,8 +2,17 @@ using Sorteos.Cliente.Movil.Models;
 
 namespace Sorteos.Cliente.Movil.Services
 {
+    /// <summary>
+    /// Algoritmo para la generacion de combinaciones teoricas y distribucion de numeros de planta.
+    /// </summary>
+    /// <remarks>
+    /// Manejo de Colisiones:
+    /// Si dos clientes tienen asignados numeros de planta que coinciden en el mismo boleto teorico multicombinacion,
+    /// el servicio detecta la colision, disuelve el combo y asigna exclusivamente los numeros individuales a cada cliente.
+    /// </remarks>
     public class AsignacionNumerosPlantaService : IAsignacionNumerosPlantaService
     {
+        /// <inheritdoc/>
         public List<List<int>> GenerarCombosTeoricos(int cantidadNumeros, int oportunidades)
         {
             List<List<int>> combos = [];
@@ -57,6 +66,7 @@ namespace Sorteos.Cliente.Movil.Services
             return combos;
         }
 
+        /// <inheritdoc/>
         public List<AsignacionClienteSorteo> ResolverAsignacionesSorteo(
             int cantidadNumeros,
             int oportunidades,

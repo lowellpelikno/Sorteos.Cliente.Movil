@@ -9,6 +9,26 @@ using Sorteos.Cliente.Movil.Services;
 
 namespace Sorteos.Cliente.Movil.ViewModels
 {
+    /// <summary>
+    /// ViewModel principal para la administracion interactiva de boletos, reservas, pagos y comunicacion de un sorteo.
+    /// </summary>
+    /// <remarks>
+    /// Consideraciones de Usabilidad:
+    /// - Cuadricula Visual Ergonomica: Presenta la matriz de boletos con adaptacion dinamica de columnas segun el numero
+    ///   de oportunidades por boleto, permitiendo lectura clara y toques comodos sin saturacion visual.
+    /// - Codificacion por Estados de Cobro: Distingue de inmediato boletos disponibles, apartados y liquidados,
+    ///   permitiendo al usuario alternar entre la cuadricula general y vistas agrupadas por cliente (Apartados y Pagados).
+    /// - Seleccion Multiple con Chips Visuales: Soporta seleccion simultanea de boletos, calculando en tiempo real
+    ///   el costo acumulado y exhibiendo chips interactivos para deseleccionar elementos con un solo toque.
+    /// - Apartado Agil al Azar: Proporciona la herramienta <see cref="PuedeGenerarAlAzar"/> para seleccionar boletos
+    ///   aleatorios en segundos, ideal para transmisiones en vivo o peticiones rapidas de clientes.
+    /// - Integracion Directa con WhatsApp: Genera automaticamente mensajes formateados con las cuentas bancarias
+    ///   del negocio y el desglose de boletos para envio inmediato sin tener que redactar a mano.
+    /// - Visor de Comprobantes Integrado: Permite adjuntar y visualizar imagenes de bauches o transferencias dentro
+    ///   de la misma aplicacion.
+    /// - Rendimiento de Desplazamiento Fluido: Carga los boletos mediante paginacion incremental por cursor para
+    ///   soportar sorteos masivos (miles de numeros) sin congelar el hilo principal de la interfaz.
+    /// </remarks>
     [QueryProperty(nameof(IdSorteoQuery), "idSorteo")]
     public partial class ReservasSorteoViewModel : ObservableObject
     {
@@ -20,6 +40,12 @@ namespace Sorteos.Cliente.Movil.ViewModels
         private bool _hayMasPaginas = true;
         private bool _actualizandoMetricas = false;
 
+        /// <summary>
+        /// Obtiene o establece la cantidad de boletos que el usuario desea generar aleatoriamente.
+        /// </summary>
+        /// <remarks>
+        /// Usabilidad: Se restringe automaticamente a digitos y se acota al maximo de boletos disponibles.
+        /// </remarks>
         [ObservableProperty]
         public partial string CantidadAzarTexto { get; set; } = "1";
 
@@ -42,64 +68,124 @@ namespace Sorteos.Cliente.Movil.ViewModels
             }
         }
 
+        /// <summary>
+        /// Identificador de sorteo recibido por navegacion Shell para inicializar la vista.
+        /// </summary>
         [ObservableProperty]
         public partial string IdSorteoQuery { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Indica si la vista esta realizando una operacion de carga o procesamiento en segundo plano.
+        /// </summary>
         [ObservableProperty]
         public partial bool IsBusy { get; set; }
 
+        /// <summary>
+        /// Indica si la cuadricula esta recuperando el siguiente bloque de boletos al hacer scroll.
+        /// </summary>
         [ObservableProperty]
         public partial bool IsCargandoMas { get; set; }
 
+        /// <summary>
+        /// Obtiene o establece la entidad del sorteo actualmente cargado.
+        /// </summary>
         [ObservableProperty]
         public partial SorteoPlantilla? SorteoActual { get; set; }
 
+        /// <summary>
+        /// Titulo visible del sorteo en la cabecera.
+        /// </summary>
         [ObservableProperty]
         public partial string TituloSorteo { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Subtitulo informativo con desglose de folios, cantidad de numeros y oportunidades por boleto.
+        /// </summary>
         [ObservableProperty]
         public partial string SubtituloSorteo { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Modalidad o loteria con la que se define el sorteo.
+        /// </summary>
         [ObservableProperty]
         public partial string ModalidadJuego { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Texto formateado con el costo por boleto individual.
+        /// </summary>
         [ObservableProperty]
         public partial string CostoBoletoTexto { get; set; } = "$0.00";
 
+        /// <summary>
+        /// Total absoluto de numeros que componen el sorteo.
+        /// </summary>
         [ObservableProperty]
         public partial int TotalNumeros { get; set; }
 
+        /// <summary>
+        /// Cantidad de numeros que permanecen disponibles para seleccion.
+        /// </summary>
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(PuedeGenerarAlAzar))]
         public partial int TotalDisponibles { get; set; }
 
+        /// <summary>
+        /// Cantidad de numeros actualmente en estado de apartado.
+        /// </summary>
         [ObservableProperty]
         public partial int TotalApartados { get; set; }
 
+        /// <summary>
+        /// Cantidad de numeros liquidados y marcados como pagados.
+        /// </summary>
         [ObservableProperty]
         public partial int TotalPagados { get; set; }
 
+        /// <summary>
+        /// Porcentaje de boletos colocados (apartados + pagados) entre 0.0 y 1.0 para barras de progreso.
+        /// </summary>
         [ObservableProperty]
         public partial double PorcentajeOcupacion { get; set; }
 
+        /// <summary>
+        /// Texto porcentual legible para mostrar en la interfaz (ej. "75%").
+        /// </summary>
         [ObservableProperty]
         public partial string PorcentajeOcupacionTexto { get; set; } = "0%";
 
+        /// <summary>
+        /// Numero de columnas de la cuadricula adaptado ergonomicamente segun las oportunidades del boleto.
+        /// </summary>
         [ObservableProperty]
         public partial int ColumnasCuadricula { get; set; } = 5;
 
+        /// <summary>
+        /// Indica si el sorteo ya cuenta con ganadores registrados.
+        /// </summary>
         [ObservableProperty]
         public partial bool TieneGanadores { get; set; }
 
+        /// <summary>
+        /// Resumen legible de los ganadores premiados en el sorteo.
+        /// </summary>
         [ObservableProperty]
         public partial string ResumenGanadoresTexto { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Indica si el sorteo ya concluyo y se encuentra cerrado para nuevas modificaciones operativas.
+        /// </summary>
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(PuedeGenerarAlAzar))]
         public partial bool EsSorteoFinalizado { get; set; }
 
+        /// <summary>
+        /// Determina si la herramienta de asignacion aleatoria de boletos debe estar habilitada.
+        /// </summary>
         public bool PuedeGenerarAlAzar => !EsSorteoFinalizado && FiltroActual == "Disponibles" && TotalDisponibles > 0;
 
+        /// <summary>
+        /// Criterio de filtro activo ("Disponibles", "Apartados", "Pagados", "Todos").
+        /// </summary>
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(EsVistaNumeros))]
         [NotifyPropertyChangedFor(nameof(EsVistaApartados))]
@@ -107,6 +193,9 @@ namespace Sorteos.Cliente.Movil.ViewModels
         [NotifyPropertyChangedFor(nameof(PuedeGenerarAlAzar))]
         public partial string FiltroActual { get; set; } = "Disponibles";
 
+        /// <summary>
+        /// Termino de busqueda para localizar boletos o clientes especificos en la cuadricula o listados.
+        /// </summary>
         [ObservableProperty]
         public partial string TextoBusqueda { get; set; } = string.Empty;
 
@@ -224,6 +313,11 @@ namespace Sorteos.Cliente.Movil.ViewModels
 
         public ObservableCollection<NumeroGridItem> NumerosVisibles { get; } = [];
 
+        /// <summary>
+        /// Inicializa una nueva instancia de <see cref="ReservasSorteoViewModel"/> con servicios de base de datos y comprobantes.
+        /// </summary>
+        /// <param name="databaseService">Servicio de operaciones SQLite.</param>
+        /// <param name="comprobanteStorageService">Servicio de gestion de archivos multimedia de comprobantes.</param>
         public ReservasSorteoViewModel(
             ILocalDatabaseService databaseService,
             IComprobanteStorageService comprobanteStorageService)
@@ -232,6 +326,9 @@ namespace Sorteos.Cliente.Movil.ViewModels
             _comprobanteStorageService = comprobanteStorageService;
         }
 
+        /// <summary>
+        /// Responde a la recepcion del parametro de navegacion cargando el sorteo especificado.
+        /// </summary>
         async partial void OnIdSorteoQueryChanged(string value)
         {
             if (int.TryParse(value, out int idSorteo) && idSorteo > 0)
@@ -240,6 +337,14 @@ namespace Sorteos.Cliente.Movil.ViewModels
             }
         }
 
+        /// <summary>
+        /// Recupera y estructura toda la informacion inicial del sorteo, ajustando las columnas segun oportunidades.
+        /// </summary>
+        /// <remarks>
+        /// Usabilidad: Configura el numero optimo de columnas (5 para 1 oportunidad, 3 para 2, 2 para 3 o mas)
+        /// para que las combinaciones numéricas se lean sin apiñamiento en la pantalla del dispositivo movil.
+        /// </remarks>
+        /// <param name="idSorteo">Identificador del sorteo a consultar.</param>
         public async Task CargarDatosSorteoAsync(int idSorteo)
         {
             if (IsBusy) return;

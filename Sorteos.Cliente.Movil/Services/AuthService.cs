@@ -1,5 +1,15 @@
 namespace Sorteos.Cliente.Movil.Services
 {
+    /// <summary>
+    /// Implementacion del servicio de autenticacion y resguardo de credenciales.
+    /// </summary>
+    /// <remarks>
+    /// Arquitectura y Seguridad:
+    /// - Utiliza <see cref="SecureStorage"/> para el resguardo cifrado del PIN en el almacenamiento del sistema operativo.
+    /// - Proporciona un mecanismo de contingencia en memoria (<see cref="_fallbackMemoria"/>) para garantizar operacion
+    ///   continua en entornos de pruebas unitarias o plataformas que carezcan de soporte de llavero nativo.
+    /// - Gestiona de forma atomica las banderas de estado de PIN activo y aceptacion de terminos legales.
+    /// </remarks>
     public class AuthService : IAuthService
     {
         private const string KeyAppPin = "App_Security_Pin";
@@ -7,6 +17,8 @@ namespace Sorteos.Cliente.Movil.Services
         private const string KeyTerminosAceptados = "App_Terminos_Aceptados";
 
         private readonly Dictionary<string, string> _fallbackMemoria = [];
+
+        /// <inheritdoc/>
         public bool EstaAutenticado { get; set; } = false;
 
         private string ObtenerValor(string clave, string valorDefecto)
@@ -49,6 +61,7 @@ namespace Sorteos.Cliente.Movil.Services
             _fallbackMemoria.Remove(clave);
         }
 
+        /// <inheritdoc/>
         public async Task<bool> TienePinConfiguradoAsync()
         {
             try
@@ -65,6 +78,7 @@ namespace Sorteos.Cliente.Movil.Services
             return !string.IsNullOrWhiteSpace(pinFallback);
         }
 
+        /// <inheritdoc/>
         public async Task<bool> RequiereAutenticacionAsync()
         {
             bool activo;
@@ -82,6 +96,7 @@ namespace Sorteos.Cliente.Movil.Services
             return await TienePinConfiguradoAsync();
         }
 
+        /// <inheritdoc/>
         public async Task<bool> ValidarPinAsync(string pin)
         {
             if (string.IsNullOrWhiteSpace(pin)) return false;
@@ -110,6 +125,7 @@ namespace Sorteos.Cliente.Movil.Services
             return esValido;
         }
 
+        /// <inheritdoc/>
         public async Task EstablecerPinAsync(string pin)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(pin);
@@ -129,6 +145,7 @@ namespace Sorteos.Cliente.Movil.Services
             EstaAutenticado = true;
         }
 
+        /// <inheritdoc/>
         public Task DesactivarPinAsync()
         {
             try
@@ -147,6 +164,7 @@ namespace Sorteos.Cliente.Movil.Services
             return Task.CompletedTask;
         }
 
+        /// <inheritdoc/>
         public bool HaAceptadoTerminos()
         {
             try
@@ -159,6 +177,7 @@ namespace Sorteos.Cliente.Movil.Services
             }
         }
 
+        /// <inheritdoc/>
         public void AceptarTerminos()
         {
             try

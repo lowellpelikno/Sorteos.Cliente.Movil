@@ -4,6 +4,10 @@ using Xunit;
 
 namespace Sorteos.Cliente.Movil.Tests
 {
+/// <summary>
+    /// Pruebas de persistencia e integridad para el catalogo de premios en <see cref="LocalDatabaseService"/>,
+    /// evaluando altas, ordenamiento jerarquico por lugar y validacion de eliminacion.
+    /// </summary>
     public class LocalDatabaseServicePremiosTests : IAsyncLifetime
     {
         private readonly string _dbPath;

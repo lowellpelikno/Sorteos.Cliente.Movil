@@ -2,8 +2,16 @@ using Sorteos.Cliente.Movil.ViewModels;
 
 namespace Sorteos.Cliente.Movil.Views
 {
+/// <summary>
+    /// Pagina principal de administracion y operacion de un sorteo, incluyendo la cuadricula de numeros,
+    /// gestion de apartados, captura y exportacion de flyers publicitarios y registro de pagos masivos.
+    /// </summary>
     public partial class ReservasSorteoPage : ContentPage
     {
+        /// <summary>
+        /// Inicializa una nueva instancia de <see cref="ReservasSorteoPage"/> vinculando su ViewModel y configurando el delegado de captura de flyer.
+        /// </summary>
+        /// <param name="viewModel">Instancia inyectada de <see cref="ReservasSorteoViewModel"/>.</param>
         public ReservasSorteoPage(ReservasSorteoViewModel viewModel)
         {
             InitializeComponent();
@@ -11,6 +19,10 @@ namespace Sorteos.Cliente.Movil.Views
             viewModel.SolicitarCapturaFlyerAsync = CapturarFlyerAsync;
         }
 
+        /// <summary>
+        /// Captura como imagen grafica el componente visual de flyer del sorteo y lo almacena temporalmente en disco para compartir.
+        /// </summary>
+        /// <returns>Ruta absoluta al archivo de imagen PNG generado, o null si la captura falla.</returns>
         private async Task<string?> CapturarFlyerAsync()
         {
             try
