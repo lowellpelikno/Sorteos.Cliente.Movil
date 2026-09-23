@@ -3,6 +3,9 @@ using Sorteos.Cliente.Movil.Models;
 
 namespace Sorteos.Cliente.Movil.Services
 {
+    /// <summary>
+    /// Implementacion concreta para la persistencia de datos comerciales del negocio y armado de textos bancarios.
+    /// </summary>
     public class ConfiguracionNegocioService : IConfiguracionNegocioService
     {
         private const string KeyNombreNegocio = "Negocio_Nombre";
@@ -16,6 +19,10 @@ namespace Sorteos.Cliente.Movil.Services
         private readonly IPreferences? _preferences;
         private readonly Dictionary<string, string> _fallbackMemoria = [];
 
+        /// <summary>
+        /// Inicializa el servicio permitiendo inyectar una abstraccion de preferencias para pruebas unitarias.
+        /// </summary>
+        /// <param name="preferences">Instancia de preferencias nativas o simuladas.</param>
         public ConfiguracionNegocioService(IPreferences? preferences = null)
         {
             try
@@ -63,6 +70,7 @@ namespace Sorteos.Cliente.Movil.Services
             _fallbackMemoria[clave] = valor;
         }
 
+        /// <inheritdoc/>
         public Task<DatosNegocioDto> ObtenerDatosNegocioAsync()
         {
             DatosNegocioDto datos = new()
@@ -79,6 +87,7 @@ namespace Sorteos.Cliente.Movil.Services
             return Task.FromResult(datos);
         }
 
+        /// <inheritdoc/>
         public Task GuardarDatosNegocioAsync(DatosNegocioDto datos)
         {
             ArgumentNullException.ThrowIfNull(datos);
@@ -94,6 +103,7 @@ namespace Sorteos.Cliente.Movil.Services
             return Task.CompletedTask;
         }
 
+        /// <inheritdoc/>
         public async Task<string> GenerarMensajeBancarioAsync()
         {
             DatosNegocioDto datos = await ObtenerDatosNegocioAsync();

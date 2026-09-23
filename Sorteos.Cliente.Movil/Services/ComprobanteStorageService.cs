@@ -1,9 +1,13 @@
 namespace Sorteos.Cliente.Movil.Services
 {
+    /// <summary>
+    /// Servicio responsable de la captura mediante camara/galeria y persistencia de comprobantes fotográficos de apartado.
+    /// </summary>
     public class ComprobanteStorageService : IComprobanteStorageService
     {
         private const string CarpetaComprobantes = "comprobantes";
 
+        /// <inheritdoc/>
         public async Task<string?> CapturarOSeleccionarComprobanteAsync(int idReserva)
         {
             try
@@ -86,6 +90,7 @@ namespace Sorteos.Cliente.Movil.Services
             }
         }
 
+        /// <inheritdoc/>
         public async Task<string?> GuardarArchivoComprobanteAsync(FileResult archivo, int idReserva)
         {
             try

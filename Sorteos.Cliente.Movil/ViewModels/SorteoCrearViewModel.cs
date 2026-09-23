@@ -11,42 +11,91 @@ using System.Collections.ObjectModel;
 
 namespace Sorteos.Cliente.Movil.ViewModels
 {
+    /// <summary>
+    /// ViewModel asistente para la creacion, parametrizacion y generacion masiva de boletos de un sorteo.
+    /// </summary>
+    /// <remarks>
+    /// Consideraciones de Usabilidad:
+    /// - Flujo Asistido por Fecha: Se abre vinculado a un dia especifico de la agenda semanal (<see cref="IdDiaQuery"/>),
+    ///   validando de manera preventiva que la fecha no haya expirado ni cuente con un sorteo previo para evitar trabajo inutil.
+    /// - Numeracion Consecutiva Automatizada: Asigna de antemano el siguiente folio disponible (<see cref="NumeroDeSorteo"/>),
+    ///   eliminando la carga cognitiva de verificar registros previos.
+    /// - Presets Rapidos con Controles Hibridos: Permite elegir la cantidad de numeros y oportunidades mediante botones
+    ///   de un toque (100, 200, 500, 1000), controles deslizantes (slider) o entrada personalizada, adaptandose a cualquier preferencia.
+    /// - Selector Integrado de Premios: Despliega los premios activos con casillas de seleccion directa,
+    ///   permitiendo estructurar el atractivo comercial del sorteo en una sola pantalla.
+    /// - Notificacion Desacoplada: Al guardar, emite <see cref="SorteoCreadoMessage"/> para actualizar de inmediato
+    ///   la agenda y el panel de control sin recargas forzadas.
+    /// </remarks>
     [QueryProperty(nameof(IdDiaQuery), "idDia")]
     public partial class SorteoCrearViewModel : BaseViewModel
     {
         private readonly ILocalDatabaseService _databaseService;
         private readonly ISorteoImagenStorageService _imagenStorageService;
 
+        /// <summary>
+        /// Parametro de navegacion recibido desde la vista de agenda con el identificador del dia calendario.
+        /// </summary>
         [ObservableProperty]
         public partial string IdDiaQuery { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Identificador numerico del dia seleccionado.
+        /// </summary>
         [ObservableProperty]
         public partial int IdDia { get; set; }
 
+        /// <summary>
+        /// Nombre y fecha legible del dia asignado al sorteo (ej. "Viernes, 27 de Septiembre").
+        /// </summary>
         [ObservableProperty]
         public partial string NombreDiaSeleccionado { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Fecha cronologica del sorteo.
+        /// </summary>
         [ObservableProperty]
         public partial DateTime FechaDiaSeleccionado { get; set; } = DateTime.Today;
 
+        /// <summary>
+        /// Descripcion comercial o lema del sorteo mostrado a los participantes.
+        /// </summary>
         [ObservableProperty]
         public partial string Descripcion { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Folio numerico consecutivo del sorteo para identificacion oficial.
+        /// </summary>
         [ObservableProperty]
         public partial string NumeroDeSorteo { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Ruta local en disco del arte o logotipo promocional del sorteo.
+        /// </summary>
         [ObservableProperty]
         public partial string? RutaImagen { get; set; }
 
+        /// <summary>
+        /// Indica si el sorteo cuenta con imagen promocional cargada para exhibicion visual.
+        /// </summary>
         [ObservableProperty]
         public partial bool TieneImagen { get; set; }
 
+        /// <summary>
+        /// Loteria o metodo oficial utilizado para dictaminar los numeros ganadores (ej. "Lotería Nacional").
+        /// </summary>
         [ObservableProperty]
         public partial string SeJuegaCon { get; set; } = "Lotería Nacional";
 
+        /// <summary>
+        /// Texto del costo individual por boleto para adquisicion.
+        /// </summary>
         [ObservableProperty]
         public partial string CostoTexto { get; set; } = "100";
 
+        /// <summary>
+        /// Cantidad total de numeros que se generaran en la matriz de la base de datos.
+        /// </summary>
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(EsCantidad100))]
         [NotifyPropertyChangedFor(nameof(EsCantidad200))]
@@ -54,9 +103,15 @@ namespace Sorteos.Cliente.Movil.ViewModels
         [NotifyPropertyChangedFor(nameof(EsCantidad1000))]
         public partial int CantidadNumeros { get; set; } = 100;
 
+        /// <summary>
+        /// Valor enlazado al control deslizante (Slider) para ajuste continuo de numeros.
+        /// </summary>
         [ObservableProperty]
         public partial double CantidadNumerosSlider { get; set; } = 100;
 
+        /// <summary>
+        /// Indica si el usuario opto por capturar una cantidad personalizada fuera de los presets comunes.
+        /// </summary>
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(EsCantidad100))]
         [NotifyPropertyChangedFor(nameof(EsCantidad200))]
@@ -64,9 +119,15 @@ namespace Sorteos.Cliente.Movil.ViewModels
         [NotifyPropertyChangedFor(nameof(EsCantidad1000))]
         public partial bool EsOtroCantidad { get; set; } = false;
 
+        /// <summary>
+        /// Texto de entrada libre para definir una cantidad arbitraria de boletos.
+        /// </summary>
         [ObservableProperty]
         public partial string CantidadPersonalizadaTexto { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Numero de combinaciones u oportunidades asociadas a cada boleto individual.
+        /// </summary>
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(EsOportunidad1))]
         [NotifyPropertyChangedFor(nameof(EsOportunidad2))]
@@ -74,9 +135,15 @@ namespace Sorteos.Cliente.Movil.ViewModels
         [NotifyPropertyChangedFor(nameof(EsOportunidad4))]
         public partial int Oportunidades { get; set; } = 1;
 
+        /// <summary>
+        /// Valor enlazado al control deslizante de oportunidades.
+        /// </summary>
         [ObservableProperty]
         public partial double OportunidadesSlider { get; set; } = 1;
 
+        /// <summary>
+        /// Indica si el usuario definira un valor de oportunidades fuera de 1, 2, 3 o 4.
+        /// </summary>
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(EsOportunidad1))]
         [NotifyPropertyChangedFor(nameof(EsOportunidad2))]
@@ -84,9 +151,15 @@ namespace Sorteos.Cliente.Movil.ViewModels
         [NotifyPropertyChangedFor(nameof(EsOportunidad4))]
         public partial bool EsOtroOportunidad { get; set; } = false;
 
+        /// <summary>
+        /// Texto de entrada libre para oportunidades personalizadas.
+        /// </summary>
         [ObservableProperty]
         public partial string OportunidadPersonalizadaTexto { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Banderas reactivas para destacar visualmente el chip de preset activo en la interfaz.
+        /// </summary>
         public bool EsCantidad100 => !EsOtroCantidad && CantidadNumeros == 100;
         public bool EsCantidad200 => !EsOtroCantidad && CantidadNumeros == 200;
         public bool EsCantidad500 => !EsOtroCantidad && CantidadNumeros == 500;
@@ -97,11 +170,22 @@ namespace Sorteos.Cliente.Movil.ViewModels
         public bool EsOportunidad3 => !EsOtroOportunidad && Oportunidades == 3;
         public bool EsOportunidad4 => !EsOtroOportunidad && Oportunidades == 4;
 
+        /// <summary>
+        /// Indica si la plantilla debe recrearse automaticamente en las semanas subsiguientes.
+        /// </summary>
         [ObservableProperty]
         public partial bool RepetirCadaSemana { get; set; } = false;
 
+        /// <summary>
+        /// Catalogo observable de premios con casillas de seleccion para asociar al sorteo.
+        /// </summary>
         public ObservableCollection<PremioSeleccionableItem> PremiosDisponibles { get; } = [];
 
+        /// <summary>
+        /// Inicializa una nueva instancia de <see cref="SorteoCrearViewModel"/> y suscribe cambios de catalogo.
+        /// </summary>
+        /// <param name="databaseService">Servicio de datos local.</param>
+        /// <param name="imagenStorageService">Servicio de almacenamiento de imagenes promocionales.</param>
         public SorteoCrearViewModel(
             ILocalDatabaseService databaseService,
             ISorteoImagenStorageService imagenStorageService)

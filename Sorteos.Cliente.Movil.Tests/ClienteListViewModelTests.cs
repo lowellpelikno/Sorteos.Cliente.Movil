@@ -8,6 +8,10 @@ using Xunit;
 
 namespace Sorteos.Cliente.Movil.Tests
 {
+/// <summary>
+    /// Pruebas unitarias para <see cref="ClienteListViewModel"/>,
+    /// validando recepcion reactiva de mensajes <see cref="ClienteGuardadoMessage"/> y mutacion atomica de colecciones observables.
+    /// </summary>
     public class ClienteListViewModelTests : IAsyncLifetime
     {
         private readonly string _dbPath;

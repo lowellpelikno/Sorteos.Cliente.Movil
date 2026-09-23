@@ -9,23 +9,53 @@ using Sorteos.Cliente.Movil.Services;
 
 namespace Sorteos.Cliente.Movil.ViewModels
 {
+    /// <summary>
+    /// ViewModel responsable de la gestion y exploracion del catalogo de premios.
+    /// </summary>
+    /// <remarks>
+    /// Consideraciones de Usabilidad:
+    /// - Modo Dual (Administracion vs Selector): Admite el parametro <see cref="EsModoSeleccion"/> para operar
+    ///   como selector modal invocado durante la creacion de un sorteo o como administrador general de premios.
+    /// - Jerarquia Visual Ordenada: Mantiene los premios clasificados por su posicion (<see cref="PremioLocal.Lugar"/>)
+    ///   tanto en memoria como en pantalla, garantizando que el primer lugar siempre encabece el listado.
+    /// - Filtrado Predictivo Multicriterio: Permite buscar por texto de lugar, descripcion del bien o valor economico.
+    /// - Proteccion contra Eliminaciones Invalidas: Impide suprimir premios vinculados a sorteos vigentes,
+    ///   explicando la razon de forma constructiva para preservar la integridad de los registros.
+    /// - Actualizacion Atomica Reactiva: Refleja altas y ediciones en tiempo real sin recargar la pantalla completa.
+    /// </remarks>
     [QueryProperty(nameof(EsModoSeleccion), "modoSeleccion")]
     public partial class PremioListViewModel : BaseViewModel
     {
         private readonly ILocalDatabaseService _databaseService;
         private List<PremioLocal> _todosLosPremios = [];
 
+        /// <summary>
+        /// Obtiene o establece la coleccion observable de premios para visualizacion en tarjetas.
+        /// </summary>
         [ObservableProperty]
         public partial ObservableCollection<PremioLocal> Premios { get; set; } = [];
 
+        /// <summary>
+        /// Obtiene o establece el texto de busqueda para filtrar los premios en tiempo real.
+        /// </summary>
         [ObservableProperty]
         public partial string FiltroTexto { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Obtiene o establece si la pantalla fue abierta como selector interactivo desde el asistente de sorteos.
+        /// </summary>
         [ObservableProperty]
         public partial bool EsModoSeleccion { get; set; }
 
+        /// <summary>
+        /// Indica si la coleccion ya fue recuperada desde SQLite al menos una vez en la sesion actual.
+        /// </summary>
         public bool YaInicializado { get; private set; }
 
+        /// <summary>
+        /// Inicializa una nueva instancia de <see cref="PremioListViewModel"/> y suscribe el receptor de sincronizacion.
+        /// </summary>
+        /// <param name="databaseService">Servicio de datos local.</param>
         public PremioListViewModel(ILocalDatabaseService databaseService)
         {
             _databaseService = databaseService;
@@ -37,6 +67,9 @@ namespace Sorteos.Cliente.Movil.ViewModels
             });
         }
 
+        /// <summary>
+        /// Inserta o actualiza un premio en su posicion ordinal correcta preservando la jerarquia visual.
+        /// </summary>
         private void OnPremioGuardado(PremioLocal premio, bool esNuevo)
         {
             if (esNuevo)
@@ -81,6 +114,13 @@ namespace Sorteos.Cliente.Movil.ViewModels
             }
         }
 
+        /// <summary>
+        /// Recupera la lista completa de premios desde la base de datos y aplica el filtro vigente.
+        /// </summary>
+        /// <remarks>
+        /// Usabilidad: Muestra el indicador de progreso <see cref="BaseViewModel.IsBusy"/> y presenta dialogos
+        /// explicativos en caso de fallo de acceso al almacenamiento.
+        /// </remarks>
         [RelayCommand]
         public async Task CargarPremiosAsync()
         {
@@ -106,11 +146,17 @@ namespace Sorteos.Cliente.Movil.ViewModels
             }
         }
 
+        /// <summary>
+        /// Aplica la busqueda en memoria al cambiar el termino de filtro.
+        /// </summary>
         partial void OnFiltroTextoChanged(string value)
         {
             AplicarFiltro();
         }
 
+        /// <summary>
+        /// Filtra la coleccion visible evaluando lugar, descripcion y valor comercial.
+        /// </summary>
         private void AplicarFiltro()
         {
             if (string.IsNullOrWhiteSpace(FiltroTexto))
@@ -128,12 +174,19 @@ namespace Sorteos.Cliente.Movil.ViewModels
             }
         }
 
+        /// <summary>
+        /// Conduce al formulario para registrar un nuevo premio en el catalogo.
+        /// </summary>
         [RelayCommand]
         private static async Task NuevoPremioAsync()
         {
             await Shell.Current.GoToAsync("PremioPage");
         }
 
+        /// <summary>
+        /// Abre el formulario de edicion transfiriendo el identificador del premio.
+        /// </summary>
+        /// <param name="premio">Instancia del premio a modificar.</param>
         [RelayCommand]
         private static async Task EditarPremioAsync(PremioLocal premio)
         {
@@ -141,6 +194,13 @@ namespace Sorteos.Cliente.Movil.ViewModels
             await Shell.Current.GoToAsync($"PremioPage?idPremio={premio.IdPremio}");
         }
 
+        /// <summary>
+        /// Solicita confirmacion y elimina el premio seleccionado si no esta asignado a un sorteo vigente.
+        /// </summary>
+        /// <remarks>
+        /// Usabilidad: Notifica de forma clara si el elemento esta protegido por dependencias activas, evitando desconcierto.
+        /// </remarks>
+        /// <param name="premio">Premio a eliminar.</param>
         [RelayCommand]
         private async Task EliminarPremioAsync(PremioLocal premio)
         {
@@ -194,6 +254,14 @@ namespace Sorteos.Cliente.Movil.ViewModels
             }
         }
 
+        /// <summary>
+        /// Comando activado al presionar sobre una tarjeta de premio.
+        /// </summary>
+        /// <remarks>
+        /// Usabilidad: En modo seleccion, devuelve el premio al formulario de creacion de sorteos y cierra la vista;
+        /// en modo catalogo regular, abre la ficha de edicion.
+        /// </remarks>
+        /// <param name="premio">Premio seleccionado por el usuario.</param>
         [RelayCommand]
         private async Task SeleccionarPremioAsync(PremioLocal premio)
         {

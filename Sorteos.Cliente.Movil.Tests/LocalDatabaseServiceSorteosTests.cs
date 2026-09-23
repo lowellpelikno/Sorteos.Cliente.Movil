@@ -4,6 +4,10 @@ using Xunit;
 
 namespace Sorteos.Cliente.Movil.Tests
 {
+/// <summary>
+    /// Pruebas transaccionales completas sobre el ciclo de vida de sorteos en <see cref="LocalDatabaseService"/>,
+    /// abarcando creacion, inicializacion masiva de cuadriculas, apartados, pagos masivos, premiacion y cierre.
+    /// </summary>
     public class LocalDatabaseServiceSorteosTests : IAsyncLifetime
     {
         private readonly string _dbPath;

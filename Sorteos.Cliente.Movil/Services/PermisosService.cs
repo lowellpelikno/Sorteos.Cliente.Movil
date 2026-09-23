@@ -1,7 +1,11 @@
 namespace Sorteos.Cliente.Movil.Services
 {
+    /// <summary>
+    /// Implementacion concreta para la consulta y gestion de permisos nativos del dispositivo mediante Microsoft.Maui.ApplicationModel.
+    /// </summary>
     public class PermisosService : IPermisosService
     {
+        /// <inheritdoc/>
         public async Task<PermissionStatus> VerificarPermisoCamaraAsync()
         {
             try
@@ -14,6 +18,7 @@ namespace Sorteos.Cliente.Movil.Services
             }
         }
 
+        /// <inheritdoc/>
         public async Task<PermissionStatus> SolicitarPermisoCamaraAsync()
         {
             try
@@ -31,6 +36,7 @@ namespace Sorteos.Cliente.Movil.Services
             }
         }
 
+        /// <inheritdoc/>
         public async Task<PermissionStatus> VerificarPermisoGaleriaAsync()
         {
             try
@@ -43,6 +49,7 @@ namespace Sorteos.Cliente.Movil.Services
             }
         }
 
+        /// <inheritdoc/>
         public async Task<PermissionStatus> SolicitarPermisoGaleriaAsync()
         {
             try
@@ -60,6 +67,7 @@ namespace Sorteos.Cliente.Movil.Services
             }
         }
 
+        /// <inheritdoc/>
         public async Task<PermissionStatus> VerificarPermisoAlmacenamientoAsync()
         {
             try
@@ -72,6 +80,7 @@ namespace Sorteos.Cliente.Movil.Services
             }
         }
 
+        /// <inheritdoc/>
         public async Task<PermissionStatus> SolicitarPermisoAlmacenamientoAsync()
         {
             try
@@ -89,6 +98,7 @@ namespace Sorteos.Cliente.Movil.Services
             }
         }
 
+        /// <inheritdoc/>
         public void AbrirConfiguracionSistema()
         {
             try

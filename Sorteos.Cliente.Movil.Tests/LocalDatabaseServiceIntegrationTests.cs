@@ -4,6 +4,10 @@ using Xunit;
 
 namespace Sorteos.Cliente.Movil.Tests
 {
+/// <summary>
+    /// Pruebas de integracion sobre <see cref="LocalDatabaseService"/>,
+    /// validando inicializacion de esquema, pragmas WAL, operaciones CRUD de clientes y numeros de planta.
+    /// </summary>
     public class LocalDatabaseServiceIntegrationTests : IAsyncLifetime
     {
         private readonly string _dbPath;

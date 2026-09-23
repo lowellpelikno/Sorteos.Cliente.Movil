@@ -3,6 +3,10 @@ using Xunit;
 
 namespace Sorteos.Cliente.Movil.Tests
 {
+/// <summary>
+    /// Pruebas unitarias para las utilidades de texto en <see cref="TextoHelper"/>,
+    /// evaluando saneamiento de cadenas, deteccion de caracteres especiales, validacion de emails y montos numericos.
+    /// </summary>
     public class TextoHelperTests
     {
         [Theory]

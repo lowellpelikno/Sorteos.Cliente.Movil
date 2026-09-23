@@ -10,90 +10,195 @@ using System.Collections.ObjectModel;
 
 namespace Sorteos.Cliente.Movil.ViewModels
 {
+    /// <summary>
+    /// ViewModel encargado de la agenda operativa semanal, seguimiento diario de sorteos,
+    /// resolucion de pendientes de periodos anteriores y dictaminacion de ganadores.
+    /// </summary>
+    /// <remarks>
+    /// Consideraciones de Usabilidad:
+    /// - Navegacion Cronologica Intuitiva: Presenta una tira interactiva de dias de la semana, seleccionando
+    ///   automaticamente el dia en curso ("Hoy") para enfocar la atencion inmediata del operador.
+    /// - Guiado Preventivo en Transiciones Semanales: Si existen sorteos abiertos de semanas previas, la interfaz
+    ///   activa el modo de resolucion guiada con explicaciones claras sobre la regla de negocio, evitando que se
+    ///   acumulen sorteos huerfanos sin cerrar.
+    /// - Panel de Estado Integral: Ofrece el resumen de venta (disponibles, apartados, pagados, ocupacion porcentual)
+    ///   y acceso inmediato a la matriz de reservas con un solo toque.
+    /// - Cierre Asistido con Asignacion de Ganadores: Facilita el proceso de conclusion mediante un cuadro modal
+    ///   que valida que cada premio cuente con un boleto ganador valido antes de marcar el sorteo como finalizado.
+    /// - Difusion de Resultados (Flyer): Permite capturar graficamente la cartela de ganadores para compartirla
+    ///   inmediatamente con los participantes via WhatsApp o redes sociales.
+    /// </remarks>
     public partial class SorteosSemanaViewModel : BaseViewModel
     {
         private readonly ILocalDatabaseService _databaseService;
 
+        /// <summary>
+        /// Delegado interactivo provisto por la vista para capturar el flyer de ganadores en formato de imagen.
+        /// </summary>
         public Func<Task<string?>>? SolicitarCapturaFlyerGanadoresAsync { get; set; }
 
+        /// <summary>
+        /// Coleccion de dias correspondientes al ciclo semanal en curso.
+        /// </summary>
         public ObservableCollection<DiaSemanaItem> DiasSemana { get; } = [];
 
+        /// <summary>
+        /// Lista de premios vinculados al sorteo del dia seleccionado.
+        /// </summary>
         public ObservableCollection<PremioPorSorteo> PremiosDelSorteo { get; } = [];
 
+        /// <summary>
+        /// Coleccion de asignacion de boletos premiados para el modal de dictaminacion y cierre.
+        /// </summary>
         public ObservableCollection<PremioAsignacionDto> PremiosParaCierre { get; } = [];
 
+        /// <summary>
+        /// Obtiene o establece la visibilidad del modal para previsualizar y exportar el flyer de ganadores.
+        /// </summary>
         [ObservableProperty]
         public partial bool MostrarModalGanadoresFlyer { get; set; }
 
+        /// <summary>
+        /// Obtiene o establece el elemento de dia de la semana que tiene el foco activo en pantalla.
+        /// </summary>
         [ObservableProperty]
         public partial DiaSemanaItem? DiaSeleccionado { get; set; }
 
+        /// <summary>
+        /// Obtiene o establece el sorteo asignado al dia seleccionado (o null si el dia esta libre).
+        /// </summary>
         [ObservableProperty]
         public partial SorteoPlantilla? SorteoActual { get; set; }
 
+        /// <summary>
+        /// Indica si el dia en seleccion cuenta con un sorteo programado.
+        /// </summary>
         [ObservableProperty]
         public partial bool TieneSorteoDiaSeleccionado { get; set; }
 
+        /// <summary>
+        /// Determina si el boton de creacion de sorteo debe mostrarse habilitado para el dia enfocado.
+        /// </summary>
         [ObservableProperty]
         public partial bool PuedeCrearSorteoDiaSeleccionado { get; set; }
 
+        /// <summary>
+        /// Indica si el dia seleccionado ya pertenece al pasado cronologico.
+        /// </summary>
         [ObservableProperty]
         public partial bool EsDiaPasadoDiaSeleccionado { get; set; }
 
+        /// <summary>
+        /// Indica si el sorteo del dia seleccionado ya fue cerrado y premiado.
+        /// </summary>
         [ObservableProperty]
         public partial bool EsSorteoFinalizado { get; set; }
 
+        /// <summary>
+        /// Controla el despliegue del modal de asignacion de ganadores y conclusion de sorteo.
+        /// </summary>
         [ObservableProperty]
         public partial bool MostrarModalCerrarSorteo { get; set; }
 
+        /// <summary>
+        /// Banderilla de validacion que autoriza el cierre una vez capturados todos los boletos ganadores.
+        /// </summary>
         [ObservableProperty]
         public partial bool TodosPremiosAsignados { get; set; }
 
+        /// <summary>
+        /// Titulo visible en el encabezado del modal de cierre.
+        /// </summary>
         [ObservableProperty]
         public partial string TituloModalCierre { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Mensaje explicativo sobre el estado operativo del dia (ej. "Día sin sorteo programado").
+        /// </summary>
         [ObservableProperty]
         public partial string MensajeEstadoDia { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Total de numeros que integran el sorteo del dia enfocado.
+        /// </summary>
         [ObservableProperty]
         public partial int TotalNumeros { get; set; }
 
+        /// <summary>
+        /// Total de boletos disponibles en el sorteo seleccionado.
+        /// </summary>
         [ObservableProperty]
         public partial int TotalDisponibles { get; set; }
 
+        /// <summary>
+        /// Total de boletos apartados pendientes de cobro.
+        /// </summary>
         [ObservableProperty]
         public partial int TotalApartados { get; set; }
 
+        /// <summary>
+        /// Total de boletos pagados y formalizados.
+        /// </summary>
         [ObservableProperty]
         public partial int TotalPagados { get; set; }
 
+        /// <summary>
+        /// Fraccion de ocupacion del sorteo entre 0.0 y 1.0 para graficacion de progreso.
+        /// </summary>
         [ObservableProperty]
         public partial double PorcentajeOcupacion { get; set; }
 
+        /// <summary>
+        /// Texto de porcentaje de colocacion (ej. "82%").
+        /// </summary>
         [ObservableProperty]
         public partial string PorcentajeOcupacionTexto { get; set; } = "0%";
 
+        /// <summary>
+        /// Indica si la interfaz se encuentra en modalidad forzosa de resolucion de sorteos pendientes pasados.
+        /// </summary>
         [ObservableProperty]
         public partial bool ModoResolucionPendientes { get; set; }
 
+        /// <summary>
+        /// Indica si el elemento seleccionado corresponde a la tarjeta informativa de reglas de negocio.
+        /// </summary>
         [ObservableProperty]
         public partial bool EsTarjetaInformativaSeleccionada { get; set; }
 
+        /// <summary>
+        /// Mensaje orientativo del banner superior de advertencia.
+        /// </summary>
         [ObservableProperty]
         public partial string BannerPendienteTexto { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Visibilidad del banner informativo en la parte superior de la pantalla.
+        /// </summary>
         [ObservableProperty]
         public partial bool MostrarBannerPendiente { get; set; }
 
+        /// <summary>
+        /// Controla la apertura del visor a pantalla completa de la imagen promocional.
+        /// </summary>
         [ObservableProperty]
         public partial bool MostrarVisorImagen { get; set; } = false;
 
+        /// <summary>
+        /// Titulo descriptivo para la barra del visor de imagen.
+        /// </summary>
         [ObservableProperty]
         public partial string TituloVisorImagen { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Direccion URI o ruta local de la imagen promocional exhibida en el visor.
+        /// </summary>
         [ObservableProperty]
         public partial string? ImagenVisorUrl { get; set; }
 
+        /// <summary>
+        /// Presenta la imagen promocional en pantalla completa para inspeccion detallada.
+        /// </summary>
         [RelayCommand]
         private void VerImagenCompleta()
         {
@@ -105,12 +210,18 @@ namespace Sorteos.Cliente.Movil.ViewModels
             }
         }
 
+        /// <summary>
+        /// Cierra el visor de imagen y devuelve el control a la pantalla de agenda.
+        /// </summary>
         [RelayCommand]
         private void CerrarVisorImagen()
         {
             MostrarVisorImagen = false;
         }
 
+        /// <summary>
+        /// Oculta el banner superior y recuerda la preferencia del usuario en el almacenamiento local.
+        /// </summary>
         [RelayCommand]
         private void OcultarBannerPendiente()
         {
@@ -118,13 +229,23 @@ namespace Sorteos.Cliente.Movil.ViewModels
             MostrarBannerPendiente = false;
         }
 
+        /// <summary>
+        /// Titulo informativo sobre politicas de operacion semanal.
+        /// </summary>
         [ObservableProperty]
         public partial string TituloInformativoReglas { get; set; } = "Reglas de Semana y Sorteos Pospuestos";
 
+        /// <summary>
+        /// Descripcion detallada y sobria sobre la culminacion obligatoria de sorteos pendientes.
+        /// </summary>
         [ObservableProperty]
         public partial string DescripcionInformativaReglas { get; set; } =
             "La aplicación opera por periodos semanales. Si tienes sorteos de semanas o periodos anteriores que aún no culminan, éstos permanecen 100% funcionales (puedes seguir apartando boletos, registrando pagos y enviando mensajes de WhatsApp).\n\nSin embargo, por regla de negocio, no es posible registrar nuevos sorteos para la semana en curso hasta que no culmines (cerrar registrando ganadores o cancelar) todos los sorteos pendientes de periodos anteriores.";
 
+        /// <summary>
+        /// Inicializa una nueva instancia de <see cref="SorteosSemanaViewModel"/> y suscribe notificaciones de nuevos sorteos.
+        /// </summary>
+        /// <param name="databaseService">Servicio de datos local SQLite.</param>
         public SorteosSemanaViewModel(ILocalDatabaseService databaseService)
         {
             _databaseService = databaseService;

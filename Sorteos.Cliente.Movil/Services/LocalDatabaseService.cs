@@ -4,6 +4,17 @@ using Sorteos.Cliente.Movil.Models;
 
 namespace Sorteos.Cliente.Movil.Services;
 
+/// <summary>
+/// Implementacion de alta eficiencia y concurrencia para el servicio de persistencia local SQLite.
+/// </summary>
+/// <remarks>
+/// Incorpora las directivas de rendimiento arquitectonico de la aplicacion:
+/// - Modo WAL (Write-Ahead Logging) y pragma synchronous NORMAL para lecturas y escrituras concurrentes sin bloqueo del hilo UI.
+/// - Hardening de almacenamiento con secure_delete y temp_store en memoria (OWASP MASVS-STORAGE).
+/// - Concurrencia controlada mediante SemaphoreSlim(1, 1) y patron Lazy Initialization con Double-Check.
+/// - Integridad transaccional ACID estricta con RunInTransactionAsync para mutaciones de multiples registros y cascadas.
+/// - Prohibicion de In-Memory Joins y anti-patrones N+1: ejecucion de agregaciones y proyecciones directas en el motor SQLite y procesamiento por lotes (Batch).
+/// </remarks>
 public class LocalDatabaseService(string dbPath, IAsignacionNumerosPlantaService asignacionService) : ILocalDatabaseService
 {
     private SQLiteAsyncConnection? _database;
@@ -11,6 +22,10 @@ public class LocalDatabaseService(string dbPath, IAsignacionNumerosPlantaService
     private List<EstatusSorteoItem>? _estatusSorteoCahce;
     private List<EstatusApartadoItem>? _estatusApartadoCache;
 
+    /// <summary>
+    /// Inicializa una nueva instancia de <see cref="LocalDatabaseService"/> utilizando la ruta estandar de base de datos en el almacenamiento local.
+    /// </summary>
+    /// <param name="asignacionService">Servicio de dominio para la resolucion y asignacion automatica de numeros de planta.</param>
     public LocalDatabaseService(IAsignacionNumerosPlantaService asignacionService)
         : this(Path.Combine(FileSystem.AppDataDirectory, "sorteos_local.db3"), asignacionService)
     {

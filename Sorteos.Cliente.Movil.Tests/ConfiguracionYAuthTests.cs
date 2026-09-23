@@ -4,6 +4,10 @@ using Xunit;
 
 namespace Sorteos.Cliente.Movil.Tests
 {
+/// <summary>
+    /// Pruebas unitarias para <see cref="ConfiguracionNegocioService"/> y <see cref="AuthService"/>,
+    /// validando persistencia en preferencias locales, hash criptografico de PIN y verificacion de credenciales.
+    /// </summary>
     public class ConfiguracionYAuthTests
     {
         [Fact]

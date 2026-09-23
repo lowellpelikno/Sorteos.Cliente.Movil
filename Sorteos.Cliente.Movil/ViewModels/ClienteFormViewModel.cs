@@ -11,6 +11,22 @@ using Sorteos.Cliente.Movil.Services;
 
 namespace Sorteos.Cliente.Movil.ViewModels;
 
+/// <summary>
+/// ViewModel responsable del formulario de captura, validacion y edicion de la ficha de un cliente.
+/// </summary>
+/// <remarks>
+/// Consideraciones de Usabilidad:
+/// - Adaptacion de Contexto: Detecta automaticamente si se trata de un alta o una modificacion mediante el parametro
+///   <see cref="IdCliente"/>, actualizando el titulo de la pantalla ("Nuevo Cliente" vs "Editar Cliente").
+/// - Asistencia en Captura Telefonica: Formatea y restringe el campo <see cref="Telefono"/> a un maximo de 10 digitos
+///   en tiempo real, garantizando compatibilidad directa con los enlaces de comunicacion via WhatsApp.
+/// - Validaciones Amigables y Guiadas: Verifica nombre obligatorio, longitud telefonica y formato de correo
+///   proporcionando ejemplos claros (ej. "usuario@dominio.com") y evitando jerga tecnica en los dialogos de advertencia.
+/// - Gestion Agil de Numeros de Planta: Permite agregar y remover boletos favoritos del cliente con verificacion
+///   inmediata de disponibilidad en base de datos para no asignar numeros previamente reservados por terceros.
+/// - Sincronizacion Desacoplada: Al guardar, emite <see cref="ClienteGuardadoMessage"/> para actualizar la lista principal
+///   sin requerir recargas globales ni afectar la posicion de scroll.
+/// </remarks>
 [QueryProperty(nameof(IdCliente), "idCliente")]
 public partial class ClienteFormViewModel : BaseViewModel
 {
@@ -18,43 +34,78 @@ public partial class ClienteFormViewModel : BaseViewModel
 
     #region propiedades
 
-    
-
+    /// <summary>
+    /// Obtiene o establece el identificador del cliente a editar (0 para nuevos registros).
+    /// </summary>
     [ObservableProperty]
     public partial int IdCliente { get; set; }
 
+    /// <summary>
+    /// Obtiene o establece el nombre de pila del cliente (campo obligatorio).
+    /// </summary>
     [ObservableProperty]
     public partial string Nombre { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Obtiene o establece el primer apellido del cliente.
+    /// </summary>
     [ObservableProperty]
     public partial string ApellidoPaterno { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Obtiene o establece el segundo apellido del cliente.
+    /// </summary>
     [ObservableProperty]
     public partial string ApellidoMaterno { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Obtiene o establece el telefono movil de contacto a 10 digitos.
+    /// </summary>
+    /// <remarks>
+    /// Usabilidad: Se sanitiza automaticamente para contener solo digitos.
+    /// </remarks>
     [ObservableProperty]
     public partial string Telefono { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Obtiene o establece la direccion de correo electronico (opcional).
+    /// </summary>
     [ObservableProperty]
     public partial string Email { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Obtiene o establece el estado activo o suspendido del cliente en el padron.
+    /// </summary>
     [ObservableProperty]
     public partial bool Activo { get; set; } = true;
 
+    /// <summary>
+    /// Obtiene o establece la coleccion de numeros de boleto preferidos (numeros de planta) asignados al cliente.
+    /// </summary>
     [ObservableProperty]
     public partial ObservableCollection<int> NumerosPlanta { get; set; } = [];
 
+    /// <summary>
+    /// Obtiene o establece el texto del campo de captura rapida para anadir un nuevo numero de planta.
+    /// </summary>
     [ObservableProperty]
     public partial string NuevoNumeroPlantaTexto { get; set; } = string.Empty;
 
     #endregion
 
+    /// <summary>
+    /// Inicializa una nueva instancia de <see cref="ClienteFormViewModel"/> configurando el titulo inicial.
+    /// </summary>
+    /// <param name="databaseService">Servicio de datos local.</param>
     public ClienteFormViewModel(ILocalDatabaseService databaseService)
     {
         _databaseService = databaseService;
         Title = "Nuevo Cliente";
     }
 
+    /// <summary>
+    /// Reacciona a la recepcion del parametro de consulta para cargar la ficha del cliente en modo edicion.
+    /// </summary>
     async partial void OnIdClienteChanged(int value)
     {
         if (value > 0)
@@ -68,6 +119,9 @@ public partial class ClienteFormViewModel : BaseViewModel
         }
     }
 
+    /// <summary>
+    /// Sanitiza en tiempo real la entrada de texto telefonico para conservar unicamente hasta 10 digitos numericos.
+    /// </summary>
     partial void OnTelefonoChanged(string value)
     {
         if (string.IsNullOrEmpty(value)) return;
@@ -79,6 +133,10 @@ public partial class ClienteFormViewModel : BaseViewModel
         }
     }
 
+    /// <summary>
+    /// Recupera la informacion del cliente y sus numeros de planta desde el almacenamiento local.
+    /// </summary>
+    /// <param name="idCliente">Identificador unico del cliente.</param>
     private async Task CargarClienteAsync(int idCliente)
     {
         try
@@ -112,6 +170,13 @@ public partial class ClienteFormViewModel : BaseViewModel
         }
     }
 
+    /// <summary>
+    /// Agrega un nuevo numero de planta a la lista en memoria tras validar formato y disponibilidad global.
+    /// </summary>
+    /// <remarks>
+    /// Usabilidad: Previene conflictos de asignacion notificando de inmediato si el boleto ya pertenece
+    /// a otro cliente registrado en el sistema.
+    /// </remarks>
     [RelayCommand]
     private async Task AgregarNumeroPlantaAsync()
     {
@@ -141,12 +206,23 @@ public partial class ClienteFormViewModel : BaseViewModel
         NuevoNumeroPlantaTexto = string.Empty;
     }
 
+    /// <summary>
+    /// Remueve un numero de planta de la lista del cliente en edicion.
+    /// </summary>
+    /// <param name="numero">Numero a retirar de la lista.</param>
     [RelayCommand]
     private void QuitarNumeroPlanta(int numero)
     {
         NumerosPlanta.Remove(numero);
     }
 
+    /// <summary>
+    /// Valida exhaustivamente cada campo del formulario y persiste la entidad del cliente y sus numeros de planta.
+    /// </summary>
+    /// <remarks>
+    /// Usabilidad: Sanitiza cadenas, emite mensajes de error precisos y amigables ante fallos de formato,
+    /// y notifica via mensajeria para que la lista receptora mantenga la continuidad de uso.
+    /// </remarks>
     [RelayCommand]
     private async Task GuardarAsync()
     {
@@ -262,6 +338,9 @@ public partial class ClienteFormViewModel : BaseViewModel
         }
     }
 
+    /// <summary>
+    /// Comando para descartar los cambios y retornar a la vista anterior.
+    /// </summary>
     [RelayCommand]
     private static async Task CancelarAsync()
     {

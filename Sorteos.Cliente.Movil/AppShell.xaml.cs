@@ -1,7 +1,13 @@
 namespace Sorteos.Cliente.Movil
 {
+/// <summary>
+    /// Contenedor de navegacion principal de tipo <see cref="Shell"/> que registra el arbol de rutas y destinos de la aplicacion.
+    /// </summary>
     public partial class AppShell : Shell
     {
+        /// <summary>
+        /// Inicializa una nueva instancia de <see cref="AppShell"/> y registra las rutas estaticas de navegacion por Shell.
+        /// </summary>
         public AppShell()
         {
             InitializeComponent();
